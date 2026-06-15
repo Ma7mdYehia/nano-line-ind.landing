@@ -21,6 +21,7 @@ Current source-of-truth documentation has been added under `/docs`:
 1. `docs/01-session-1-project-brief-strategy.md`
 2. `docs/02-session-2-final-english-landing-page-copy.md`
 3. `docs/03-session-3-visual-video-blueprint.md`
+4. `docs/04-session-4-ux-wireframe.md`
 
 This `CLAUDE.md` file is the master handoff and project execution plan.
 
@@ -36,7 +37,7 @@ The landing page should sell and explain a custom industrial healthy bread produ
 
 The page should help the sales team qualify serious leads before sending a short customized quotation.
 
-The user wants the page to be visually rich, sales-focused, and technically clear.
+The user wants the page to be visually rich, sales-focused, technically clear, and conversion-oriented.
 
 ---
 
@@ -62,15 +63,16 @@ The user wants the page to be visually rich, sales-focused, and technically clea
 - Do not say the line is immediately available.
 - Do not overpromise a fixed production capacity without saying that capacity depends on loaf size, weight, shape, and configuration.
 - Do not use raw PDF screenshots as final website visuals.
-- Do not make the landing page look like a PDF brochure.
+- Do not make the landing page look like a downloadable brochure.
 
 ---
 
 # 4. Source Documents
 
-The project strategy was built from two uploaded PDF documents:
+The project strategy was built from two uploaded PDF documents.
 
 ## Technical Offer PDF
+
 Used as the primary source for:
 
 - Machine stages
@@ -91,6 +93,7 @@ Important technical references from the offer:
 - Production stages include dough divider, proofer, dough rounding, dough arrangement, dough sheeter, bread forming, transfer conveyors, baking chamber, and cooling conveyors.
 
 ## Financial Offer PDF
+
 Used only as internal commercial context for:
 
 - Add-on categories
@@ -140,7 +143,7 @@ Purpose:
 
 Outcome:
 
-English landing page copy is ready for UX wireframing and frontend build.
+English landing page copy is ready for UX wireframing, design, and frontend build.
 
 ---
 
@@ -161,33 +164,28 @@ Visual strategy is ready for design and asset production.
 
 ---
 
-# 6. Next Sessions / Project Roadmap
-
 ## Session 4 — UX Wireframe
+File: `docs/04-session-4-ux-wireframe.md`
 
-Goal:
-Create the full landing page UX structure before starting UI design or code.
+Purpose:
 
-Deliverables:
+- Define desktop page structure
+- Define mobile page structure
+- Map every section into a layout plan
+- Define CTA behavior
+- Define calculator UX flow
+- Define lead form UX flow
+- Define sticky CTA behavior
+- Define responsive behavior
+- Create an implementation-ready component map
 
-- Desktop wireframe
-- Mobile wireframe
-- Section-by-section layout
-- Sticky CTA behavior
-- Calculator placement
-- Form flow
-- Visual placement
-- Navigation anchors
-- Scroll behavior suggestions
+Outcome:
 
-Key requirements:
-
-- Hero above the fold must be strong and conversion-focused.
-- Calculator should appear before the long technical stages section.
-- Production stages section should be visually rich and interactive.
-- Mobile experience must be clean, fast, and CTA-driven.
+UX structure is ready for UI direction, design system creation, and future frontend implementation.
 
 ---
+
+# 6. Next Sessions / Project Roadmap
 
 ## Session 5 — UI Direction / Design System
 
@@ -199,6 +197,7 @@ Deliverables:
 - Color palette
 - Typography system
 - Spacing system
+- Layout system
 - Section style rules
 - Card styles
 - Button styles
@@ -206,6 +205,7 @@ Deliverables:
 - Form style
 - Calculator UI style
 - Stage timeline style
+- Mobile design direction
 - Visual treatment rules
 
 Suggested design direction:
@@ -217,6 +217,11 @@ Suggested design direction:
 - Controlled orange/yellow Nano Line accent
 - Clean technical cards
 - Modern motion and diagrams
+
+Important:
+
+- Do not start coding in Session 5 unless explicitly requested.
+- Focus on design system and visual direction only.
 
 ---
 
@@ -306,10 +311,12 @@ components/
   NoFixedPriceSection.tsx
   FinalCTA.tsx
   Footer.tsx
+  StickyCTA.tsx
 lib/
   calculator.ts
 content/
   landing.en.ts
+  landing.ar.ts
 public/
   images/
   videos/
@@ -377,7 +384,7 @@ Checklist:
 
 # 7. Recommended Claude Start Prompt
 
-Use this prompt when bringing Claude into the repository:
+Use this prompt when bringing Claude into the repository for the next stage:
 
 ```text
 Continue in Claude Opus 4.8.
@@ -389,6 +396,7 @@ Start by reading:
 2. docs/01-session-1-project-brief-strategy.md
 3. docs/02-session-2-final-english-landing-page-copy.md
 4. docs/03-session-3-visual-video-blueprint.md
+5. docs/04-session-4-ux-wireframe.md
 
 Important rules:
 - Do not display prices anywhere.
@@ -396,37 +404,77 @@ Important rules:
 - The line is customizable and built-to-order.
 - The page must be visually rich, technical, clean, and conversion-focused.
 - Use the calculator only for production estimates, not pricing.
+- The UX wireframe is already complete.
 
-Your first task is Session 4: UX Wireframe.
+Your first task is Session 5: UI Direction / Design System.
 
-Create a detailed UX wireframe plan for desktop and mobile, including section order, layout direction, CTA placement, calculator placement, form flow, visual placement, sticky CTA behavior, and responsive behavior.
+Create a complete UI direction and design system for the landing page, including color palette, typography, spacing, section styles, cards, buttons, icon style, calculator UI style, form UI style, timeline style, visual treatment, mobile design direction, and design rules.
 
 Do not write frontend code yet.
-Do not create UI design yet.
-Focus only on UX structure.
+Focus only on design direction and UI system.
 ```
 
 ---
 
 # 8. Current Final Section Order
 
-1. Hero Section
-2. Trust / Specification Bar
-3. Problem Section
-4. Solution Section
-5. Production Flexibility Section
-6. Production Calculator Section
-7. Production Stages Section
-8. Optional Add-ons Section
-9. Manufacturing & Delivery Section
-10. Site Requirements Section
-11. Lead Qualification Form
-12. Why No Fixed Price Section
-13. Final CTA Section
+1. Header / Navigation
+2. Hero Section
+3. Trust / Specification Bar
+4. Problem Section
+5. Solution Section
+6. Production Flexibility Section
+7. Production Calculator Section
+8. Production Stages Section
+9. Optional Add-ons Section
+10. Manufacturing & Delivery Section
+11. Site Requirements Section
+12. Lead Qualification Form
+13. Why No Fixed Price Section
+14. Final CTA Section
+15. Footer
 
 ---
 
-# 9. Project Success Criteria
+# 9. Recommended Component Map
+
+```txt
+Header
+HeroSection
+TrustBar
+ProblemSection
+SolutionSection
+ProductionFlexibilitySection
+ProductionCalculator
+ProductionStagesSection
+AddOnsSection
+ManufacturingTimeline
+SiteRequirementsSection
+LeadQualificationForm
+NoFixedPriceSection
+FinalCTA
+Footer
+StickyCTA
+```
+
+Supporting components:
+
+```txt
+SectionHeader
+CTAButton
+SpecBadge
+BenefitCard
+StageCard
+AddOnCard
+TimelineStep
+FormStep
+SummaryPanel
+CalculatorResultCard
+```
+
+---
+
+# 10. Project Success Criteria
 
 The landing page is successful if it:
 
@@ -442,7 +490,7 @@ The landing page is successful if it:
 
 ---
 
-# 10. Final Instruction for Claude
+# 11. Final Instruction for Claude
 
 Always keep the sales goal in mind:
 

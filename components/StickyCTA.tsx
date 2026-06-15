@@ -20,12 +20,13 @@ export function StickyCTA() {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 flex gap-3 border-t border-steel-light bg-white px-4 py-2 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] lg:hidden">
-      <CTAButton href="#calculator" variant="secondary" className="flex-1 !py-3">
-        Calculate
+    <div className="fixed inset-x-0 bottom-0 z-50 flex gap-3 border-t border-steel-light bg-white px-4 py-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] lg:hidden">
+      <div className="absolute inset-x-0 top-0 h-0.5 bg-amber" />
+      <CTAButton href="#quotation" variant="primary" className="flex-1 !py-3">
+        Get Quotation
       </CTAButton>
       <CTAButton href="#" variant="whatsapp" className="flex-1 !py-3">
-        WhatsApp
+        Chat on WhatsApp
       </CTAButton>
     </div>
   );

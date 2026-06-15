@@ -75,7 +75,7 @@ export function SolutionSection({ content }: { content: LandingContent }) {
                   <path d={icon} />
                 </svg>
               </div>
-              <h3 className="text-h4 text-navy">{title}</h3>
+              <h3 className="text-body font-semibold text-navy">{title}</h3>
               <p className="mt-2 text-body-sm text-text-body">{body}</p>
             </div>
           ))}

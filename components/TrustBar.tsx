@@ -10,18 +10,15 @@ const BADGES = [
   { label: "Industrial Production Flow", icon: "M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" },
 ];
 
-export function TrustBar({ content }: { content: LandingContent }) {
+export function TrustBar({ content: _content }: { content: LandingContent }) {
   return (
     <section className="border-y border-steel-light bg-steel-pale">
-      <div className="container-content py-6">
-        <p className="mb-4 text-center text-caption text-text-muted">
-          {content.sections.trustBar.headline}
-        </p>
+      <div className="container-content py-5">
         <ul className="flex gap-3 overflow-x-auto pb-1 scrollbar-none md:flex-wrap md:justify-center md:overflow-visible">
           {BADGES.map(({ label, icon }) => (
             <li
               key={label}
-              className="flex shrink-0 items-center gap-2.5 rounded-full border border-steel-light bg-white px-4 py-2.5 shadow-shallow"
+              className="flex shrink-0 items-center gap-2.5 rounded-full border border-steel-light/80 bg-white px-4 py-2.5 shadow-shallow"
             >
               <svg
                 className="shrink-0 text-amber"
@@ -42,7 +39,7 @@ export function TrustBar({ content }: { content: LandingContent }) {
             </li>
           ))}
         </ul>
-        <p className="mt-4 text-center text-caption text-text-muted">
+        <p className="mt-4 text-center text-caption italic text-text-muted">
           Final specifications may vary depending on the approved configuration,
           loaf format, automation level, and site requirements.
         </p>

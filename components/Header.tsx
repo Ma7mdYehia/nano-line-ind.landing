@@ -11,8 +11,9 @@ export function Header({ content }: { content: LandingContent }) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-steel-light bg-white/95 backdrop-blur">
-      <div className="container-content flex h-16 items-center justify-between">
-        <Link href="/" className="text-h4 font-bold text-navy">
+      <div className="container-content flex h-[72px] items-center justify-between">
+        <Link href="/" className="flex items-center text-h4 font-bold text-navy">
+          <span className="mr-2 inline-block h-2 w-2 rounded-full bg-amber" />
           Nano Line
         </Link>
 
@@ -22,7 +23,7 @@ export function Header({ content }: { content: LandingContent }) {
             <a
               key={item.href}
               href={item.href}
-              className="text-body-sm font-medium text-text-body transition-colors hover:text-navy"
+              className="text-body-sm font-semibold text-text-body transition-colors hover:text-navy"
             >
               {item.label}
             </a>
@@ -80,7 +81,7 @@ export function Header({ content }: { content: LandingContent }) {
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="border-b border-steel-light py-4 text-body font-medium text-text-body last:border-0"
+                className="border-b border-steel-light py-4 text-body font-semibold text-text-body last:border-0"
               >
                 {item.label}
               </a>

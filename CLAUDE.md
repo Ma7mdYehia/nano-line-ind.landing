@@ -22,6 +22,8 @@ Current source-of-truth documentation has been added under `/docs`:
 2. `docs/02-session-2-final-english-landing-page-copy.md`
 3. `docs/03-session-3-visual-video-blueprint.md`
 4. `docs/04-session-4-ux-wireframe.md`
+5. `docs/05-session-5-ui-direction-design-system.md`
+6. `docs/06-session-6-calculator-logic-lead-form-ux.md`
 
 This `CLAUDE.md` file is the master handoff and project execution plan.
 
@@ -37,7 +39,7 @@ The landing page should sell and explain a custom industrial healthy bread produ
 
 The page should help the sales team qualify serious leads before sending a short customized quotation.
 
-The user wants the page to be visually rich, sales-focused, technically clear, and conversion-oriented.
+The page must be visually rich, sales-focused, technically clear, conversion-oriented, and ready for Arabic expansion later.
 
 ---
 
@@ -64,6 +66,7 @@ The user wants the page to be visually rich, sales-focused, technically clear, a
 - Do not overpromise a fixed production capacity without saying that capacity depends on loaf size, weight, shape, and configuration.
 - Do not use raw PDF screenshots as final website visuals.
 - Do not make the landing page look like a downloadable brochure.
+- Do not make add-ons look like ecommerce products.
 
 ---
 
@@ -107,17 +110,8 @@ Important: the financial offer contains prices, but prices must not be shown on 
 # 5. Completed Sessions
 
 ## Session 1 — Project Brief + Strategy
+
 File: `docs/01-session-1-project-brief-strategy.md`
-
-Purpose:
-
-- Define project positioning
-- Define target audience
-- Define customer objections
-- Define landing page section order
-- Define CTA hierarchy
-- Define calculator strategy
-- Define content rules
 
 Outcome:
 
@@ -130,33 +124,18 @@ Main angle:
 ---
 
 ## Session 2 — Final English Landing Page Copy
+
 File: `docs/02-session-2-final-english-landing-page-copy.md`
-
-Purpose:
-
-- Finalize English website copy
-- Write section-by-section content
-- Define CTA copy
-- Define calculator labels and messages
-- Define form labels and success message
-- Explain why no fixed price is displayed
 
 Outcome:
 
-English landing page copy is ready for UX wireframing, design, and frontend build.
+English landing page copy is ready for UX, design, and frontend build.
 
 ---
 
 ## Session 3 — Visual / Video Blueprint
+
 File: `docs/03-session-3-visual-video-blueprint.md`
-
-Purpose:
-
-- Define image and video direction for each section
-- Map visual references to PDF page numbers
-- Identify which visuals should be AI-generated or redesigned
-- Define must-have, should-have, and nice-to-have media
-- Provide AI image and video prompt templates
 
 Outcome:
 
@@ -165,120 +144,67 @@ Visual strategy is ready for design and asset production.
 ---
 
 ## Session 4 — UX Wireframe
+
 File: `docs/04-session-4-ux-wireframe.md`
-
-Purpose:
-
-- Define desktop page structure
-- Define mobile page structure
-- Map every section into a layout plan
-- Define CTA behavior
-- Define calculator UX flow
-- Define lead form UX flow
-- Define sticky CTA behavior
-- Define responsive behavior
-- Create an implementation-ready component map
 
 Outcome:
 
-UX structure is ready for UI direction, design system creation, and future frontend implementation.
+Desktop/mobile UX structure is ready for UI direction and implementation.
 
 ---
 
-# 6. Next Sessions / Project Roadmap
-
 ## Session 5 — UI Direction / Design System
 
-Goal:
-Create the visual design direction for the website.
+File: `docs/05-session-5-ui-direction-design-system.md`
 
-Deliverables:
+Outcome:
 
-- Color palette
-- Typography system
-- Spacing system
-- Layout system
-- Section style rules
-- Card styles
-- Button styles
-- Icon direction
-- Form style
-- Calculator UI style
-- Stage timeline style
-- Mobile design direction
-- Visual treatment rules
+UI direction and design system are ready for implementation.
 
-Suggested design direction:
+Key decisions:
 
-- Premium industrial B2B
-- Light theme
-- White / off-white backgrounds
-- Steel gray and deep navy
-- Controlled orange/yellow Nano Line accent
-- Clean technical cards
-- Modern motion and diagrams
-
-Important:
-
-- Do not start coding in Session 5 unless explicitly requested.
-- Focus on design system and visual direction only.
+- Navy `#0D1F3C`
+- Slate Blue `#1E3A5F`
+- Amber `#D97706` for CTAs/action states only
+- Steel Light `#E5E9EF`
+- Inter typography
+- 4px spacing base
+- 1280px main container, 1440px wide container
+- Lucide icons
+- Split-panel calculator
+- Multi-step form with live summary panel
+- Sticky-left stage timeline on desktop and accordions on mobile
 
 ---
 
 ## Session 6 — Calculator Logic + Lead Form UX
 
-Goal:
-Turn the calculator and form into clear implementation-ready components.
+File: `docs/06-session-6-calculator-logic-lead-form-ux.md`
 
-Calculator inputs:
+Outcome:
 
-- Required loaves per day
-- Daily working hours
-- Target loaf weight
-- Target loaf shape
-- Target loaf size
-- Monthly working days
-- Mixing system required?
-- Packaging support required?
+Calculator and lead form logic are ready for implementation.
 
-Calculator outputs:
+Key decisions:
 
-- Required hourly production
-- Estimated monthly production
-- Standard / Custom / Higher-capacity recommendation
-- Suggested add-ons
-- CTA to request quotation
-
-Recommendation logic:
-
-- `requiredHourlyProduction = dailyLoaves / dailyWorkingHours`
-- `monthlyProduction = dailyLoaves * monthlyWorkingDays`
-
-If `requiredHourlyProduction <= 3500`:
-
-- Standard configuration may be suitable.
-
-If `requiredHourlyProduction > 3500 && requiredHourlyProduction <= 6000`:
-
-- Custom configuration is recommended.
-
-If `requiredHourlyProduction > 6000`:
-
-- Higher-capacity customization or multi-line study is recommended.
-
-Important:
-
-- No pricing output.
-- No estimated price.
-- No financial calculation.
-- The calculator qualifies production needs only.
+- Calculator estimates production only, never price.
+- `requiredHourlyProduction = ceil(dailyLoaves / dailyWorkingHours)`
+- `estimatedMonthlyProduction = dailyLoaves × monthlyWorkingDays`
+- Standard state: `<= 3500`
+- Custom state: `3501–6000`
+- Higher-capacity state: `> 6000`
+- Calculator fields can prefill lead form fields.
+- Lead payload must never include price fields.
+- Sales handoff templates are defined for WhatsApp and email.
 
 ---
+
+# 6. Next Session
 
 ## Session 7 — Frontend Scaffold
 
 Goal:
-Create the actual website project.
+Create the actual website project scaffold without building the full final UI yet.
 
 Suggested stack:
 
@@ -289,96 +215,20 @@ Suggested stack:
 - English-first route
 - Arabic-ready structure later
 
-Suggested folders:
+Session 7 should create:
 
-```txt
-app/
-  page.tsx
-  layout.tsx
-components/
-  Header.tsx
-  HeroSection.tsx
-  TrustBar.tsx
-  ProblemSection.tsx
-  SolutionSection.tsx
-  ProductionFlexibilitySection.tsx
-  ProductionCalculator.tsx
-  ProductionStagesSection.tsx
-  AddOnsSection.tsx
-  ManufacturingTimeline.tsx
-  SiteRequirementsSection.tsx
-  LeadQualificationForm.tsx
-  NoFixedPriceSection.tsx
-  FinalCTA.tsx
-  Footer.tsx
-  StickyCTA.tsx
-lib/
-  calculator.ts
-content/
-  landing.en.ts
-  landing.ar.ts
-public/
-  images/
-  videos/
-```
+- Base project structure
+- App layout
+- Content file foundation
+- Component placeholders
+- Design token setup
+- Tailwind configuration aligned with Session 5
+- Calculator utility functions foundation based on Session 6
+- Form payload structure foundation
+- Placeholder assets directories
+- Basic README/update notes if useful
 
----
-
-## Session 8 — Frontend Build
-
-Goal:
-Implement the full landing page with placeholder assets first.
-
-Deliverables:
-
-- Responsive homepage
-- All sections from final copy
-- Production calculator component
-- Multi-step lead form component
-- Sticky CTA
-- Mobile WhatsApp/contact CTA
-- Placeholder visual blocks based on visual blueprint
-
----
-
-## Session 9 — Asset Production + Integration
-
-Goal:
-Replace placeholders with final visuals.
-
-Deliverables:
-
-- Hero visual or video
-- Round/square bread renders
-- Production stage images
-- Site layout diagram
-- Add-on cards
-- Final CTA visual
-- Optimized WebP/AVIF image exports
-- Lightweight video loops where needed
-
----
-
-## Session 10 — QA, Polish, and Launch Readiness
-
-Goal:
-Final review before publishing.
-
-Checklist:
-
-- No prices anywhere
-- No raw PDF screenshots
-- No unsupported claims
-- All technical numbers are consistent
-- Calculator works correctly
-- Form works correctly
-- Mobile layout is polished
-- Images are optimized
-- Page speed is acceptable
-- CTA hierarchy is clear
-- Meta title and description added
-- Accessibility alt text added
-- Final content reviewed for English clarity
+Do not build final polished sections in Session 7. Session 7 is for scaffold and architecture.
 
 ---
 
@@ -397,6 +247,8 @@ Start by reading:
 3. docs/02-session-2-final-english-landing-page-copy.md
 4. docs/03-session-3-visual-video-blueprint.md
 5. docs/04-session-4-ux-wireframe.md
+6. docs/05-session-5-ui-direction-design-system.md
+7. docs/06-session-6-calculator-logic-lead-form-ux.md
 
 Important rules:
 - Do not display prices anywhere.
@@ -404,14 +256,27 @@ Important rules:
 - The line is customizable and built-to-order.
 - The page must be visually rich, technical, clean, and conversion-focused.
 - Use the calculator only for production estimates, not pricing.
-- The UX wireframe is already complete.
+- The calculator and form logic are already defined.
+- The UI design system is already defined.
 
-Your first task is Session 5: UI Direction / Design System.
+Your task is Session 7: Frontend Scaffold.
 
-Create a complete UI direction and design system for the landing page, including color palette, typography, spacing, section styles, cards, buttons, icon style, calculator UI style, form UI style, timeline style, visual treatment, mobile design direction, and design rules.
+Create the Next.js + TypeScript + Tailwind project scaffold and architecture only.
 
-Do not write frontend code yet.
-Focus only on design direction and UI system.
+Required output:
+1. Package/project setup
+2. App structure
+3. Tailwind/design token setup based on Session 5
+4. Content structure based on Session 2
+5. Component placeholder structure based on Session 4
+6. Calculator utility foundation based on Session 6
+7. Lead form payload foundation based on Session 6
+8. Public asset folders
+9. README or setup notes if needed
+
+Do not create final polished UI yet.
+Do not add prices anywhere.
+Do not use raw PDF screenshots.
 ```
 
 ---
@@ -474,7 +339,54 @@ CalculatorResultCard
 
 ---
 
-# 10. Project Success Criteria
+# 10. Suggested Project Structure
+
+```txt
+app/
+  page.tsx
+  layout.tsx
+components/
+  Header.tsx
+  HeroSection.tsx
+  TrustBar.tsx
+  ProblemSection.tsx
+  SolutionSection.tsx
+  ProductionFlexibilitySection.tsx
+  ProductionCalculator.tsx
+  ProductionStagesSection.tsx
+  AddOnsSection.tsx
+  ManufacturingTimeline.tsx
+  SiteRequirementsSection.tsx
+  LeadQualificationForm.tsx
+  NoFixedPriceSection.tsx
+  FinalCTA.tsx
+  Footer.tsx
+  StickyCTA.tsx
+  ui/
+    CTAButton.tsx
+    SectionHeader.tsx
+    SpecBadge.tsx
+    BenefitCard.tsx
+    StageCard.tsx
+    AddOnCard.tsx
+    TimelineStep.tsx
+    SummaryPanel.tsx
+    CalculatorResultCard.tsx
+content/
+  landing.en.ts
+  landing.ar.ts
+lib/
+  calculator.ts
+  leadPayload.ts
+  validation.ts
+public/
+  images/
+  videos/
+```
+
+---
+
+# 11. Project Success Criteria
 
 The landing page is successful if it:
 
@@ -487,10 +399,11 @@ The landing page is successful if it:
 - Looks like a premium industrial website, not a brochure.
 - Works perfectly on mobile.
 - Uses visuals and diagrams to educate the customer.
+- Implements calculator and lead form logic without pricing output.
 
 ---
 
-# 11. Final Instruction for Claude
+# 12. Final Instruction for Claude
 
 Always keep the sales goal in mind:
 

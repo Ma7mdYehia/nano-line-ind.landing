@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Design tokens from Session 5 — UI Direction / Design System.
+ * Tailwind theme mirrors these; raw CSS variables are available for cases
+ * Tailwind utilities don't cover.
+ */
+:root {
+  /* Font: a system fallback stack for the scaffold. next/font Inter can be
+     wired in Session 8 and will populate this same variable. */
+  --font-inter: "Inter", "Helvetica Neue", Arial, sans-serif;
+
+  /* Colors */
+  --color-navy: #0d1f3c;
+  --color-slate: #1e3a5f;
+  --color-steel: #4b5563;
+  --color-steel-light: #e5e9ef;
+  --color-steel-pale: #f1f4f8;
+  --color-off-white: #f7f8fa;
+  --color-amber: #d97706;
+  --color-amber-light: #fef3c7;
+  --color-success: #16a34a;
+  --color-error: #dc2626;
+  --color-whatsapp: #25d366;
+
+  /* Text */
+  --text-primary: #0d1f3c;
+  --text-body: #374151;
+  --text-muted: #6b7280;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: var(--text-body);
+    font-family: var(--font-inter);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Visible focus ring on all interactive elements (Session 5 §14.2). */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--color-amber);
+    outline-offset: 3px;
+  }
+
+  /* Tabular figures for technical numbers (Session 5 §2.1). */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+}
+
+@layer components {
+  /* Section overline label (Session 5 §13.6). */
+  .overline {
+    @apply text-overline uppercase tracking-overline text-amber;
+  }
+
+  /* Centered content container (Session 5 §4.1). */
+  .container-content {
+    @apply mx-auto w-full max-w-content px-4 md:px-8;
+  }
+}

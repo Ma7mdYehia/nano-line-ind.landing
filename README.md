@@ -54,10 +54,12 @@ docs/
   01 … 07             # session documentation (strategy → scaffold)
 ```
 
-## Status — Session 7 (Frontend Scaffold)
+## Status — V1 Complete (Session 8)
 
-The project compiles and renders all 15 sections in order. Sections marked with
-a dashed **Scaffold** panel are placeholders to be fully built in **Session 8**.
-The production calculator is wired to `lib/calculator.ts` as a working preview.
+All 15 sections are fully implemented and `npm run build` passes with zero errors.
+The production calculator, 5-step lead qualification form, interactive production
+stages explorer, round/square bread toggle, and all supporting sections are live.
 
-See `docs/` for the full plan and `CLAUDE.md` for project rules.
+**Next step:** Session 10 — QA, polish, and launch readiness.
+
+See `docs/` for the full plan and `CLAUDE.md` for project rules and the QA checklist.

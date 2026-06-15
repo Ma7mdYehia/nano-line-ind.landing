@@ -14,18 +14,23 @@ Model: **NL-RM210 / Steel Master**
 
 # 1. Current Project State
 
-This repository is being prepared for Claude-assisted planning, UX, design, and frontend implementation.
+**V1 landing page is built and merged into main.** All 15 sections are implemented,
+the production calculator is wired to `lib/calculator.ts`, the 5-step lead form
+works with per-step validation and a success state, and `npm run build` passes
+with zero type errors.
 
-Current source-of-truth documentation has been added under `/docs`:
+Current source-of-truth documentation under `/docs`:
 
 1. `docs/01-session-1-project-brief-strategy.md`
 2. `docs/02-session-2-final-english-landing-page-copy.md`
 3. `docs/03-session-3-visual-video-blueprint.md`
 4. `docs/04-session-4-ux-wireframe.md`
+5. `docs/05-session-5-ui-design-system.md`
+6. `docs/06-session-6-calculator-logic-lead-form-ux.md`
+7. `docs/07-session-7-frontend-scaffold.md`
 
-This `CLAUDE.md` file is the master handoff and project execution plan.
-
-At this stage, the repository contains documentation only. No frontend framework has been scaffolded yet.
+**Next step: Session 10 — QA, Polish, and Launch Readiness.**
+See the Session 10 checklist in section 6 below.
 
 ---
 

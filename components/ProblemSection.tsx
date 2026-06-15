@@ -1,4 +1,5 @@
 import { CTAButton } from "./ui/CTAButton";
+import { Reveal } from "@/components/ui/Reveal";
 import type { LandingContent } from "@/content/types";
 
 const PAIN_POINTS = [
@@ -34,26 +35,29 @@ export function ProblemSection({ content }: { content: LandingContent }) {
     <section className="bg-white">
       <div className="container-content py-16 md:py-20">
         {/* Header */}
-        <div className="max-w-[600px]">
-          <p className="overline mb-3">{content.sections.problem.overline}</p>
-          <h2 className="text-h2 font-bold text-navy">
-            {content.sections.problem.headline}
-          </h2>
-          <p className="mt-4 text-body-lg text-text-body">
-            Modern bakery markets are changing fast. Customers may need
-            different loaf sizes, different weights, different shapes, and
-            higher daily production volumes. Traditional or fixed production
-            setups can limit your ability to respond to demand.
-          </p>
-          <p className="mt-3 text-body text-text-body">
-            The NL-RM210 helps solve this by giving your factory a configurable
-            production line designed around your product, your output target,
-            and your growth plan.
-          </p>
-        </div>
+        <Reveal>
+          <div className="max-w-[600px]">
+            <p className="overline mb-3">{content.sections.problem.overline}</p>
+            <h2 className="text-h2 font-bold text-navy">
+              {content.sections.problem.headline}
+            </h2>
+            <p className="mt-4 text-body-lg text-text-body">
+              Modern bakery markets are changing fast. Customers may need
+              different loaf sizes, different weights, different shapes, and
+              higher daily production volumes. Traditional or fixed production
+              setups can limit your ability to respond to demand.
+            </p>
+            <p className="mt-3 text-body text-text-body">
+              The NL-RM210 helps solve this by giving your factory a configurable
+              production line designed around your product, your output target,
+              and your growth plan.
+            </p>
+          </div>
+        </Reveal>
 
         {/* Pain points + visual */}
         <div className="mt-12 grid gap-10 md:grid-cols-2 md:gap-16">
+          <Reveal>
           <ul className="space-y-4">
             {PAIN_POINTS.map(({ title, detail }) => (
               <li
@@ -65,8 +69,10 @@ export function ProblemSection({ content }: { content: LandingContent }) {
               </li>
             ))}
           </ul>
+          </Reveal>
 
           {/* Comparison visual */}
+          <Reveal delay={120}>
           <div className="flex flex-col gap-5">
             <div className="overflow-hidden rounded-xl border border-steel-light">
               <div className="bg-steel-pale px-5 py-3">
@@ -127,6 +133,7 @@ export function ProblemSection({ content }: { content: LandingContent }) {
               Build a Line Around Your Product →
             </CTAButton>
           </div>
+          </Reveal>
         </div>
       </div>
     </section>

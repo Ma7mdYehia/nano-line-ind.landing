@@ -1,4 +1,5 @@
 import { CTAButton } from "./ui/CTAButton";
+import { Reveal } from "@/components/ui/Reveal";
 import type { LandingContent } from "@/content/types";
 
 const VARIABLES = [
@@ -35,22 +36,25 @@ export function NoFixedPriceSection({ content }: { content: LandingContent }) {
     <section className="bg-navy">
       <div className="container-content py-16 md:py-20">
         {/* Header */}
-        <div className="max-w-[640px]">
-          <p className="overline mb-3">{content.sections.noFixedPrice.overline}</p>
-          <h2 className="text-h2 font-bold text-white">
-            {content.sections.noFixedPrice.headline}
-          </h2>
-          <p className="mt-4 text-body text-white/60">
-            Displaying a public price for a custom industrial production line
-            would be misleading. Here is why.
-          </p>
-        </div>
+        <Reveal>
+          <div className="max-w-[640px]">
+            <p className="overline mb-3">{content.sections.noFixedPrice.overline}</p>
+            <h2 className="text-h2 font-bold text-white">
+              {content.sections.noFixedPrice.headline}
+            </h2>
+            <p className="mt-4 text-body text-white/60">
+              Displaying a public price for a custom industrial production line
+              would be misleading. Here is why.
+            </p>
+          </div>
+        </Reveal>
 
         <div className="mt-12 grid gap-10 lg:grid-cols-2 lg:items-start">
           {/* Left: reasons */}
           <div className="space-y-6">
-            {REASONS.map(({ headline, body, icon }) => (
-              <div key={headline} className="flex gap-5">
+            {REASONS.map(({ headline, body, icon }, i) => (
+              <Reveal key={headline} delay={i * 90}>
+              <div className="flex gap-5">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5">
                   <svg
                     className="text-amber"
@@ -71,6 +75,7 @@ export function NoFixedPriceSection({ content }: { content: LandingContent }) {
                   <p className="mt-1.5 text-body-sm text-white/60">{body}</p>
                 </div>
               </div>
+              </Reveal>
             ))}
 
             <div className="mt-2 rounded-xl border border-amber/30 bg-amber/10 p-5">
@@ -87,6 +92,7 @@ export function NoFixedPriceSection({ content }: { content: LandingContent }) {
           </div>
 
           {/* Right: variables graphic */}
+          <Reveal delay={120}>
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
             <p className="mb-5 text-body-sm font-semibold text-white/50">
               Variables that affect the final project quotation
@@ -130,6 +136,7 @@ export function NoFixedPriceSection({ content }: { content: LandingContent }) {
               </div>
             </div>
           </div>
+          </Reveal>
         </div>
 
         <div className="mt-10">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { calculate, type ConfigurationDirection, type TriState, type LoafShape } from "@/lib/calculator";
 import { CTAButton } from "./ui/CTAButton";
 import type { LandingContent } from "@/content/types";
@@ -23,6 +23,92 @@ const RESULT_STYLE: Record<ConfigurationDirection, { card: string; dot: string }
   },
 };
 
+const STATE_LABEL: Record<ConfigurationDirection, string> = {
+  standard: "Standard Configuration May Be Suitable",
+  custom: "Custom Configuration Recommended",
+  higher_capacity: "Higher-Capacity Study Recommended",
+};
+
+function prefersReducedMotion() {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
+/** Smoothly animate an integer toward `target` (cubic ease-out). */
+function useCountUp(target: number, duration = 450) {
+  const [val, setVal] = useState(target);
+  const valRef = useRef(target);
+  valRef.current = val;
+
+  useEffect(() => {
+    if (prefersReducedMotion()) {
+      setVal(target);
+      return;
+    }
+    const from = valRef.current;
+    if (from === target) return;
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setVal(Math.round(from + (target - from) * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+
+  return val;
+}
+
+function StateGauge({
+  value,
+  direction,
+}: {
+  value: number;
+  direction: ConfigurationDirection;
+}) {
+  // Visual domain (loaves/hour). Marker is clamped so it never hugs an edge.
+  const DOMAIN = 7500;
+  const pct = Math.max(2, Math.min(98, (value / DOMAIN) * 100));
+
+  return (
+    <div className="rounded-xl bg-white p-4 shadow-shallow">
+      <p className="text-caption text-text-muted">Configuration direction</p>
+      <p className="mt-1 flex items-center gap-2 text-body-sm font-semibold text-navy">
+        <span
+          className={`h-2.5 w-2.5 shrink-0 rounded-full ${RESULT_STYLE[direction].dot}`}
+        />
+        {STATE_LABEL[direction]}
+      </p>
+
+      <div className="relative mt-4">
+        <div className="flex h-2.5 overflow-hidden rounded-full">
+          <div className="bg-success/70" style={{ width: "46.7%" }} />
+          <div className="bg-config-blue/70" style={{ width: "33.3%" }} />
+          <div className="bg-amber/70" style={{ width: "20%" }} />
+        </div>
+        {/* Marker */}
+        <div
+          className="absolute -top-[3px] transition-[left] duration-500 ease-out"
+          style={{ left: `${pct}%`, transform: "translateX(-50%)" }}
+        >
+          <div className="h-4 w-4 rounded-full border-2 border-white bg-navy shadow" />
+        </div>
+      </div>
+
+      <div className="mt-2 flex justify-between text-[10px] text-text-muted">
+        <span>Standard</span>
+        <span>Custom</span>
+        <span>Higher capacity</span>
+      </div>
+    </div>
+  );
+}
+
 function PillSelect<T extends string>({
   options,
   value,
@@ -43,7 +129,7 @@ function PillSelect<T extends string>({
             key={o.value}
             type="button"
             onClick={() => onChange(o.value)}
-            className={`rounded-md border px-4 py-2 text-body-sm font-medium transition-colors ${
+            className={`rounded-md border px-4 py-2 text-body-sm font-medium transition-all duration-200 active:scale-95 ${
               value === o.value
                 ? "border-navy bg-navy text-white"
                 : "border-steel-light bg-white text-text-body hover:border-navy"
@@ -81,6 +167,10 @@ export function ProductionCalculator({ content }: { content: LandingContent }) {
       needsPackaging,
     });
   }, [dailyLoaves, dailyHours, monthlyDays, loafShape, needsMixing, needsPackaging]);
+
+  // Animated figures (call hooks unconditionally; feed 0 when no result).
+  const hourly = useCountUp(result ? result.requiredHourlyProduction : 0);
+  const monthly = useCountUp(result ? result.monthlyProduction : 0);
 
   const fmt = (n: number) => n.toLocaleString("en-US");
 
@@ -221,7 +311,7 @@ export function ProductionCalculator({ content }: { content: LandingContent }) {
                           Required hourly
                         </p>
                         <p className="mt-1 text-h3 font-bold tabular-nums text-navy">
-                          {fmt(result.requiredHourlyProduction)}
+                          {fmt(hourly)}
                         </p>
                         <p className="text-caption text-text-muted">
                           loaves / hour
@@ -232,7 +322,7 @@ export function ProductionCalculator({ content }: { content: LandingContent }) {
                           Monthly output
                         </p>
                         <p className="mt-1 text-h3 font-bold tabular-nums text-navy">
-                          {fmt(result.monthlyProduction)}
+                          {fmt(monthly)}
                         </p>
                         <p className="text-caption text-text-muted">
                           loaves / month
@@ -240,8 +330,13 @@ export function ProductionCalculator({ content }: { content: LandingContent }) {
                       </div>
                     </div>
 
+                    <StateGauge
+                      value={result.requiredHourlyProduction}
+                      direction={result.direction}
+                    />
+
                     <div
-                      className={`rounded-lg p-4 text-body-sm ${RESULT_STYLE[result.direction].card}`}
+                      className={`rounded-lg p-4 text-body-sm transition-colors duration-300 ${RESULT_STYLE[result.direction].card}`}
                     >
                       <div className="flex items-start gap-2">
                         <span
@@ -257,10 +352,11 @@ export function ProductionCalculator({ content }: { content: LandingContent }) {
                           Suggested add-ons to consider
                         </p>
                         <div className="flex flex-wrap gap-2">
-                          {result.suggestedAddons.map((a) => (
+                          {result.suggestedAddons.map((a, i) => (
                             <span
                               key={a}
-                              className="rounded-full bg-amber-light px-3 py-1 text-micro font-medium text-amber-dark"
+                              className="nl-fade-in rounded-full bg-amber-light px-3 py-1 text-micro font-medium text-amber-dark"
+                              style={{ animationDelay: `${i * 50}ms` }}
                             >
                               {a}
                             </span>

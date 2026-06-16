@@ -1,7 +1,13 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { computeRequiredHourly } from "@/lib/calculator";
+import { useState, useCallback, useMemo } from "react";
+import {
+  computeRequiredHourly,
+  calculate,
+  parseLoafWeightGrams,
+  parseLoafSizeCm,
+  parseLoafShape,
+} from "@/lib/calculator";
 import { CTAButton } from "./ui/CTAButton";
 import type { LandingContent } from "@/content/types";
 
@@ -33,7 +39,9 @@ interface FormData {
   // Step 2
   loafShape: string;
   loafWeight: string;
+  loafWeightCustom: string;
   loafSize: string;
+  loafSizeCustom: string;
   // Step 3
   dailyLoaves: string;
   dailyHours: string;
@@ -57,7 +65,9 @@ const INITIAL_DATA: FormData = {
   country: "",
   loafShape: "",
   loafWeight: "",
+  loafWeightCustom: "",
   loafSize: "",
+  loafSizeCustom: "",
   dailyLoaves: "",
   dailyHours: "",
   monthlyDays: "",
@@ -235,6 +245,27 @@ export function LeadQualificationForm({ content }: { content: LandingContent }) 
         )
       : null;
 
+  const capacityEstimate = useMemo(() => {
+    if (!data.dailyLoaves || !data.dailyHours || !data.monthlyDays) return null;
+    const weightGrams = parseLoafWeightGrams(
+      data.loafWeight === "Custom / Other" ? "custom" : data.loafWeight.replace(" g", ""),
+      data.loafWeight === "Custom / Other" ? parseFloat(data.loafWeightCustom) || undefined : undefined
+    );
+    const sizeCm = parseLoafSizeCm(
+      data.loafSize === "Custom / Other" ? "custom" : data.loafSize.replace(" cm", ""),
+      data.loafSize === "Custom / Other" ? parseFloat(data.loafSizeCustom) || undefined : undefined
+    );
+    if (!weightGrams && !sizeCm) return null;
+    return calculate({
+      dailyLoaves: parseInt(data.dailyLoaves) || 0,
+      dailyWorkingHours: parseFloat(data.dailyHours) || 1,
+      monthlyWorkingDays: parseInt(data.monthlyDays) || 0,
+      loafShape: data.loafShape ? parseLoafShape(data.loafShape.toLowerCase().replace(" ", "_").replace("not sure yet", "not_sure")) : undefined,
+      loafWeightGrams: weightGrams,
+      loafSizeCm: sizeCm,
+    });
+  }, [data.dailyLoaves, data.dailyHours, data.monthlyDays, data.loafShape, data.loafWeight, data.loafWeightCustom, data.loafSize, data.loafSizeCustom]);
+
   if (submitted) {
     return (
       <section id="quotation" className="bg-navy">
@@ -404,11 +435,18 @@ export function LeadQualificationForm({ content }: { content: LandingContent }) 
                   <Field label="Target Loaf Shape">
                     <div className="mt-2">
                       <PillChoice
-                        options={["Round", "Square", "Not sure yet"]}
+                        options={["Round", "Square", "Rectangular", "Not sure yet"]}
                         value={data.loafShape}
                         onChange={(v) => set("loafShape", v)}
                       />
                     </div>
+                    {(data.loafShape === "Square" || data.loafShape === "Rectangular") && (
+                      <p className="mt-2 rounded-lg border border-amber/30 bg-amber-light px-3 py-2 text-caption text-amber-dark">
+                        {data.loafShape === "Rectangular"
+                          ? "Rectangular forming requires a dedicated die — configuration will be confirmed at technical review."
+                          : "Square forming configuration is available and will be confirmed at quotation stage."}
+                      </p>
+                    )}
                   </Field>
                   <Field label="Target Loaf Weight">
                     <div className="mt-2">
@@ -418,6 +456,25 @@ export function LeadQualificationForm({ content }: { content: LandingContent }) 
                         onChange={(v) => set("loafWeight", v)}
                       />
                     </div>
+                    {data.loafWeight === "Custom / Other" && (
+                      <div className="mt-3">
+                        <label className="block">
+                          <span className="mb-1.5 block text-body-sm font-semibold text-text-body">
+                            Custom Weight <span className="font-normal text-caption text-text-muted">(grams, 10–500)</span>
+                          </span>
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            value={data.loafWeightCustom}
+                            onChange={(e) => set("loafWeightCustom", e.target.value)}
+                            min={10}
+                            max={500}
+                            placeholder="e.g. 80"
+                            className={inputCls}
+                          />
+                        </label>
+                      </div>
+                    )}
                   </Field>
                   <Field label="Target Loaf Size">
                     <div className="mt-2">
@@ -427,6 +484,25 @@ export function LeadQualificationForm({ content }: { content: LandingContent }) 
                         onChange={(v) => set("loafSize", v)}
                       />
                     </div>
+                    {data.loafSize === "Custom / Other" && (
+                      <div className="mt-3">
+                        <label className="block">
+                          <span className="mb-1.5 block text-body-sm font-semibold text-text-body">
+                            Custom Length <span className="font-normal text-caption text-text-muted">(cm, 5–80)</span>
+                          </span>
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            value={data.loafSizeCustom}
+                            onChange={(e) => set("loafSizeCustom", e.target.value)}
+                            min={5}
+                            max={80}
+                            placeholder="e.g. 27"
+                            className={inputCls}
+                          />
+                        </label>
+                      </div>
+                    )}
                   </Field>
                   <p className="rounded-lg border border-amber/30 bg-amber-light p-3 text-body-sm text-amber-dark">
                     If your target specifications fall outside these ranges, our
@@ -481,15 +557,33 @@ export function LeadQualificationForm({ content }: { content: LandingContent }) 
                     )}
                   </Field>
                   {requiredHourly !== null && requiredHourly > 0 && (
-                    <div className="rounded-xl bg-off-white p-4">
-                      <p className="text-caption text-text-muted">
-                        Estimated hourly production needed
-                      </p>
-                      <p className="mt-1 text-h3 font-bold tabular-nums text-navy">
-                        {requiredHourly.toLocaleString("en-US")}
-                      </p>
-                      <p className="text-caption text-text-muted">loaves / hour</p>
+                    <div className={`grid gap-3 ${capacityEstimate?.hasProductSpec ? "sm:grid-cols-2" : ""}`}>
+                      <div className="rounded-xl bg-off-white p-4">
+                        <p className="text-caption text-text-muted">
+                          Required hourly production
+                        </p>
+                        <p className="mt-1 text-h3 font-bold tabular-nums text-navy">
+                          {requiredHourly.toLocaleString("en-US")}
+                        </p>
+                        <p className="text-caption text-text-muted">loaves / hour</p>
+                      </div>
+                      {capacityEstimate?.hasProductSpec && (
+                        <div className="rounded-xl bg-off-white p-4">
+                          <p className="text-caption text-text-muted">
+                            Est. product capacity
+                          </p>
+                          <p className="mt-1 text-h3 font-bold tabular-nums text-navy">
+                            {capacityEstimate.estimatedProductCapacity.toLocaleString("en-US")}
+                          </p>
+                          <p className="text-caption text-text-muted">loaves / hour</p>
+                        </div>
+                      )}
                     </div>
+                  )}
+                  {capacityEstimate?.hasProductSpec && capacityEstimate.productSpecNote && (
+                    <p className="rounded-lg border border-steel-light bg-off-white px-3 py-2 text-caption text-text-muted leading-relaxed">
+                      {capacityEstimate.productSpecNote}
+                    </p>
                   )}
                 </div>
               )}
@@ -667,6 +761,19 @@ export function LeadQualificationForm({ content }: { content: LandingContent }) 
                   value={`${requiredHourly.toLocaleString("en-US")} / hr`}
                   highlight
                 />
+              )}
+              {capacityEstimate?.hasProductSpec && (
+                <SummaryRow
+                  label="Est. Product Capacity"
+                  value={`${capacityEstimate.estimatedProductCapacity.toLocaleString("en-US")} / hr`}
+                />
+              )}
+              {capacityEstimate?.configurationProfile.hasProvisionNote && capacityEstimate.configurationProfile.provisionNote && (
+                <div className="rounded-md border border-amber/30 bg-amber/5 px-2.5 py-2">
+                  <p className="text-caption text-amber/80 leading-relaxed">
+                    {capacityEstimate.configurationProfile.provisionNote}
+                  </p>
+                </div>
               )}
               {data.selectedAddons.length > 0 && (
                 <div>

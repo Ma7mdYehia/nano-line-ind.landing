@@ -3,6 +3,12 @@
  * elsewhere (Session 6 §15.3).
  */
 
+/**
+ * Nominal average capacity — the midpoint of the public 3,500–6,000 loaves/hr
+ * range. Used as the base for product-adjusted capacity estimates.
+ */
+export const NOMINAL_ROUND_CAPACITY = 4750; // loaves / hour
+
 /** Production capacity thresholds in loaves per hour (Session 1 / Session 6 §4). */
 export const CAPACITY_THRESHOLDS = {
   /** At or below this value, a standard configuration may be suitable. */

@@ -5,206 +5,280 @@ import { CTAButton } from "./ui/CTAButton";
 import type { LandingContent } from "@/content/types";
 
 const SPEC_CARDS = [
-  { value: "3,500–6,000", label: "loaves / hour", depth: 22 },
-  { value: "Round or Square", label: "bread formats", depth: 14 },
-  { value: "Built-to-Order", label: "manufacturing", depth: 30 },
+  { value: "3,500–6,000", label: "loaves / hour" },
+  { value: "Round or Square", label: "bread formats" },
+  { value: "Built-to-Order", label: "manufacturing" },
 ];
 
 const STAGES = [
   {
     name: "Divider",
     detail:
-      "Precisely portions bulk dough into uniform pieces at your target loaf weight — 30 to 100 g per piece.",
+      "Portions bulk dough into equal-weight pieces — 30 to 100 g per piece, consistent across every batch.",
   },
   {
     name: "Proofer",
     detail:
-      "Dough rests in a temperature-controlled proofer, developing volume and structure before shaping.",
+      "Portioned pieces rest in a temperature-controlled chamber, developing volume and structure before forming.",
   },
   {
     name: "Forming",
     detail:
-      "Sheeter and forming unit shapes each piece into round or square loaves — switchable per product line.",
+      "Sheeter and forming unit produces round or square loaves — format is switchable per product run.",
   },
   {
     name: "Baking",
     detail:
-      "High-temperature baking chamber (gas or diesel) produces consistent golden-crust loaves, batch after batch.",
+      "Gas or diesel chamber bakes loaves to a consistent golden crust at controlled temperature, batch after batch.",
   },
   {
     name: "Cooling",
     detail:
-      "Cooling conveyors bring baked loaves to packaging temperature, ready for counting, wrapping, or handling.",
+      "Baked loaves travel through cooling conveyors to reach packaging temperature, ready for counting or wrapping.",
   },
 ] as const;
 
-/** Static SVG scene for each production stage. */
+/**
+ * Technical line-art SVG scene for each production stage.
+ * Industrial aesthetic: stroked geometry, amber accent for the active element,
+ * monospace annotations. No filled blobs or cartoon shapes.
+ */
 function StageScene({ index }: { index: number }) {
   switch (index) {
     case 0: // Divider
       return (
-        <svg viewBox="0 0 160 72" className="w-full" aria-hidden="true">
-          {/* Blade */}
-          <line
-            x1="80" y1="6" x2="80" y2="66"
-            stroke="rgba(255,255,255,0.35)" strokeWidth="2"
-            strokeDasharray="5 3" strokeLinecap="round"
-          />
-          {/* Left portion */}
-          <ellipse cx="40" cy="36" rx="28" ry="20" fill="#D97706" opacity="0.65" />
-          <text x="40" y="40" textAnchor="middle" fill="white" fontSize="8" fontWeight="700">
-            ≈50 g
-          </text>
-          {/* Right portion */}
-          <ellipse cx="120" cy="36" rx="28" ry="20" fill="#D97706" opacity="0.65" />
-          <text x="120" y="40" textAnchor="middle" fill="white" fontSize="8" fontWeight="700">
-            ≈50 g
-          </text>
-          {/* Split arrows */}
-          <path
-            d="M72 36 L56 36"
-            stroke="rgba(255,255,255,0.3)" strokeWidth="1.5"
-            markerEnd="url(#arr-l)"
-          />
-          <path
-            d="M88 36 L104 36"
-            stroke="rgba(255,255,255,0.3)" strokeWidth="1.5"
-            markerEnd="url(#arr-r)"
-          />
-          <defs>
-            <marker id="arr-l" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="180">
-              <path d="M0,0 L4,2 L0,4 Z" fill="rgba(255,255,255,0.3)" />
-            </marker>
-            <marker id="arr-r" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto">
-              <path d="M0,0 L4,2 L0,4 Z" fill="rgba(255,255,255,0.3)" />
-            </marker>
-          </defs>
-          <text x="80" y="70" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="6">
-            Uniform portion cutting
+        <svg
+          viewBox="0 0 200 88"
+          className="h-full w-full"
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden="true"
+        >
+          {/* Feed block */}
+          <rect x="62" y="4" width="76" height="26" rx="2"
+            fill="rgba(217,119,6,0.07)" stroke="rgba(255,255,255,0.22)" strokeWidth="1.5" />
+          {/* Interior texture lines */}
+          <line x1="68" y1="12" x2="132" y2="12" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+          <line x1="68" y1="20" x2="132" y2="20" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+          {/* Divider blade — amber, heavy */}
+          <line x1="100" y1="30" x2="100" y2="60"
+            stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" />
+          <path d="M94 57 L100 67 L106 57 Z" fill="#D97706" />
+          {/* Guide rails */}
+          <line x1="14" y1="30" x2="14" y2="70" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+          <line x1="186" y1="30" x2="186" y2="70" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+          {/* Left output block */}
+          <rect x="14" y="70" width="70" height="14" rx="2"
+            fill="rgba(217,119,6,0.08)" stroke="rgba(217,119,6,0.38)" strokeWidth="1" />
+          {/* Right output block */}
+          <rect x="116" y="70" width="70" height="14" rx="2"
+            fill="rgba(217,119,6,0.08)" stroke="rgba(217,119,6,0.38)" strokeWidth="1" />
+          {/* Weight annotations */}
+          <text x="49" y="81" textAnchor="middle"
+            fill="rgba(217,119,6,0.65)" fontSize="6.5" fontFamily="monospace">30–100 g</text>
+          <text x="151" y="81" textAnchor="middle"
+            fill="rgba(217,119,6,0.65)" fontSize="6.5" fontFamily="monospace">30–100 g</text>
+          {/* Stage label */}
+          <text x="100" y="88" textAnchor="middle"
+            fill="rgba(255,255,255,0.18)" fontSize="5" letterSpacing="1.2" fontFamily="monospace">
+            DOUGH DIVIDER
           </text>
         </svg>
       );
 
     case 1: // Proofer
       return (
-        <svg viewBox="0 0 160 72" className="w-full" aria-hidden="true">
-          {/* Chamber */}
-          <rect
-            x="4" y="10" width="152" height="52" rx="6"
-            fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5"
-          />
-          {/* Dough pieces */}
-          {[28, 80, 132].map((cx, i) => (
-            <g key={i}>
-              <ellipse cx={cx} cy="50" rx="18" ry="11" fill="#D97706" opacity="0.6" />
-              {/* Steam dots */}
-              <circle cx={cx - 5} cy="32" r="2.5" fill="rgba(255,255,255,0.18)" />
-              <circle cx={cx + 3} cy="22" r="2" fill="rgba(255,255,255,0.12)" />
-              <circle cx={cx + 8} cy="30" r="1.5" fill="rgba(255,255,255,0.08)" />
+        <svg
+          viewBox="0 0 200 88"
+          className="h-full w-full"
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden="true"
+        >
+          {/* Outer insulated wall */}
+          <rect x="6" y="8" width="188" height="66" rx="3"
+            fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" />
+          {/* Inner chamber */}
+          <rect x="13" y="15" width="174" height="52" rx="2"
+            fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+          {/* Heating element — amber segmented bar */}
+          <line x1="26" y1="25" x2="44" y2="25" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
+          <line x1="50" y1="25" x2="68" y2="25" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
+          <line x1="74" y1="25" x2="92" y2="25" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
+          <line x1="98" y1="25" x2="116" y2="25" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
+          <line x1="122" y1="25" x2="140" y2="25" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
+          <line x1="146" y1="25" x2="164" y2="25" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
+          <line x1="170" y1="25" x2="176" y2="25" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
+          {/* Shelf rail */}
+          <line x1="20" y1="58" x2="180" y2="58"
+            stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+          {/* Dough pieces — upright rectangles on shelf */}
+          <rect x="36" y="44" width="24" height="14" rx="1"
+            fill="rgba(217,119,6,0.14)" stroke="rgba(217,119,6,0.38)" strokeWidth="1" />
+          <rect x="88" y="44" width="24" height="14" rx="1"
+            fill="rgba(217,119,6,0.14)" stroke="rgba(217,119,6,0.38)" strokeWidth="1" />
+          <rect x="140" y="44" width="24" height="14" rx="1"
+            fill="rgba(217,119,6,0.14)" stroke="rgba(217,119,6,0.38)" strokeWidth="1" />
+          {/* Heat circulation arrows */}
+          {[48, 100, 152].map((cx) => (
+            <g key={cx}>
+              <line x1={cx} y1="42" x2={cx} y2="32"
+                stroke="rgba(217,119,6,0.28)" strokeWidth="1" strokeDasharray="2 2" />
+              <path d={`M${cx - 3} 34 L${cx} 29 L${cx + 3} 34`}
+                fill="none" stroke="rgba(217,119,6,0.28)" strokeWidth="1" strokeLinecap="round" />
             </g>
           ))}
-          <text x="80" y="70" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="6">
-            Controlled temperature fermentation
+          {/* Stage label */}
+          <text x="100" y="84" textAnchor="middle"
+            fill="rgba(255,255,255,0.18)" fontSize="5" letterSpacing="1.2" fontFamily="monospace">
+            TEMPERATURE-CONTROLLED PROOFER
           </text>
         </svg>
       );
 
     case 2: // Forming
       return (
-        <svg viewBox="0 0 160 72" className="w-full" aria-hidden="true">
-          {/* Roller */}
-          <rect
-            x="16" y="10" width="128" height="10" rx="5"
-            fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5"
-          />
-          {/* Flattened dough under roller */}
-          <ellipse cx="80" cy="30" rx="40" ry="7" fill="#D97706" opacity="0.35" />
-          {/* Diverge arrows */}
-          <path
-            d="M60 42 L38 56"
-            stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinecap="round"
-          />
-          <path
-            d="M100 42 L122 56"
-            stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinecap="round"
-          />
+        <svg
+          viewBox="0 0 200 88"
+          className="h-full w-full"
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden="true"
+        >
+          {/* Input dough block */}
+          <rect x="74" y="4" width="52" height="16" rx="1"
+            fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" />
+          <line x1="74" y1="10" x2="126" y2="10" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+          {/* Dough strip feeding in */}
+          <rect x="82" y="20" width="36" height="10" rx="1"
+            fill="rgba(217,119,6,0.18)" stroke="rgba(217,119,6,0.3)" strokeWidth="1" />
+          {/* Sheeter roller — thick bar with amber nip line */}
+          <rect x="10" y="30" width="180" height="10" rx="5"
+            fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.28)" strokeWidth="1.5" />
+          <line x1="10" y1="35" x2="190" y2="35"
+            stroke="#D97706" strokeWidth="1" opacity="0.45" />
+          {/* Roller end caps */}
+          <rect x="6" y="30" width="6" height="10" rx="3" fill="rgba(255,255,255,0.18)" />
+          <rect x="188" y="30" width="6" height="10" rx="3" fill="rgba(255,255,255,0.18)" />
+          {/* Fork dividing paths */}
+          <path d="M72 46 L38 64"
+            stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinecap="round" />
+          <path d="M128 46 L162 64"
+            stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinecap="round" />
           {/* Round loaf */}
-          <circle cx="34" cy="60" r="10" fill="#D97706" opacity="0.8" />
-          <text x="34" y="63" textAnchor="middle" fill="white" fontSize="6" fontWeight="700">
-            Round
-          </text>
+          <circle cx="34" cy="75" r="13"
+            fill="rgba(217,119,6,0.1)" stroke="rgba(217,119,6,0.5)" strokeWidth="1.5" />
+          <text x="34" y="79" textAnchor="middle"
+            fill="rgba(217,119,6,0.72)" fontSize="5.5" fontWeight="700" fontFamily="monospace">ROUND</text>
           {/* Square loaf */}
-          <rect x="112" y="50" width="20" height="20" rx="3" fill="#D97706" opacity="0.8" />
-          <text x="122" y="63" textAnchor="middle" fill="white" fontSize="6" fontWeight="700">
-            Square
-          </text>
-          <text x="80" y="70" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="6">
-            Switchable format per product
-          </text>
-        </svg>
-      );
-
-    case 3: // Baking
-      return (
-        <svg viewBox="0 0 160 72" className="w-full" aria-hidden="true">
-          {/* Oven body */}
-          <rect
-            x="4" y="8" width="152" height="50" rx="5"
-            fill="#7C1D07" opacity="0.5"
-          />
-          <rect
-            x="4" y="8" width="152" height="50" rx="5"
-            fill="none" stroke="#D97706" strokeWidth="1.5" opacity="0.5"
-          />
-          {/* Inner glow */}
-          <ellipse cx="80" cy="33" rx="55" ry="22" fill="rgba(217,119,6,0.12)" />
-          {/* Bread loaves */}
-          <ellipse cx="32" cy="38" rx="16" ry="10" fill="#92400E" opacity="0.9" />
-          <ellipse cx="80" cy="38" rx="16" ry="10" fill="#92400E" opacity="0.9" />
-          <ellipse cx="128" cy="38" rx="16" ry="10" fill="#92400E" opacity="0.9" />
-          {/* Heat rising lines */}
-          <path d="M42 18 Q46 10 42 2" stroke="#D97706" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.45" />
-          <path d="M80 16 Q84 8 80 0" stroke="#D97706" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.45" />
-          <path d="M118 18 Q122 10 118 2" stroke="#D97706" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.45" />
-          <text
-            x="80" y="68" textAnchor="middle"
-            fill="#D97706" fontSize="6" fontWeight="600" opacity="0.7"
-          >
-            High Temp Zone — gas or diesel
+          <rect x="149" y="62" width="26" height="26" rx="2"
+            fill="rgba(217,119,6,0.1)" stroke="rgba(217,119,6,0.5)" strokeWidth="1.5" />
+          <text x="162" y="79" textAnchor="middle"
+            fill="rgba(217,119,6,0.72)" fontSize="5.5" fontWeight="700" fontFamily="monospace">SQUARE</text>
+          {/* Stage label */}
+          <text x="100" y="88" textAnchor="middle"
+            fill="rgba(255,255,255,0.18)" fontSize="5" letterSpacing="1.2" fontFamily="monospace">
+            SHEETER + FORMING UNIT
           </text>
         </svg>
       );
 
-    case 4: // Cooling
+    case 3: // Baking Chamber
       return (
-        <svg viewBox="0 0 160 72" className="w-full" aria-hidden="true">
-          {/* Belt */}
-          <rect
-            x="4" y="46" width="152" height="14" rx="4"
-            fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5"
-          />
-          {/* Cool air lines descending */}
-          {[24, 56, 88, 120, 148].map((cx) => (
-            <line
-              key={cx}
-              x1={cx} y1="4" x2={cx} y2="40"
-              stroke="#93C5FD" strokeWidth="1"
-              strokeDasharray="3 3" opacity="0.3"
-            />
+        <svg
+          viewBox="0 0 200 88"
+          className="h-full w-full"
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden="true"
+        >
+          {/* Outer shell */}
+          <rect x="6" y="8" width="188" height="68" rx="3"
+            fill="rgba(124,29,7,0.32)" stroke="rgba(217,119,6,0.38)" strokeWidth="1.5" />
+          {/* Insulation inner wall */}
+          <rect x="12" y="14" width="176" height="56" rx="2"
+            fill="rgba(124,29,7,0.18)" stroke="rgba(217,119,6,0.14)" strokeWidth="1" />
+          {/* Baking rack rail */}
+          <line x1="22" y1="58" x2="178" y2="58"
+            stroke="rgba(255,255,255,0.22)" strokeWidth="1" />
+          {/* Rack vertical supports */}
+          {[40, 100, 160].map((x) => (
+            <line key={x} x1={x} y1="58" x2={x} y2="68"
+              stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
           ))}
-          {/* Snowflake crosses */}
-          {[24, 88, 148].map((cx) => (
+          {/* Baked loaves on rack — rounded rectangle silhouette */}
+          <rect x="24" y="44" width="32" height="14" rx="7"
+            fill="#92400E" stroke="rgba(217,119,6,0.42)" strokeWidth="1" />
+          <rect x="84" y="44" width="32" height="14" rx="7"
+            fill="#92400E" stroke="rgba(217,119,6,0.42)" strokeWidth="1" />
+          <rect x="144" y="44" width="32" height="14" rx="7"
+            fill="#92400E" stroke="rgba(217,119,6,0.42)" strokeWidth="1" />
+          {/* Burner bar — amber, bottom of chamber */}
+          <rect x="22" y="66" width="156" height="3" rx="1.5"
+            fill="#D97706" opacity="0.55" />
+          {/* Heat convection paths */}
+          {[48, 100, 152].map((cx) => (
+            <path key={cx}
+              d={`M${cx} 64 Q${cx + 5} 54 ${cx} 44 Q${cx - 5} 34 ${cx} 24`}
+              stroke="rgba(217,119,6,0.2)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+          ))}
+          {/* Stage label */}
+          <text x="100" y="86" textAnchor="middle"
+            fill="rgba(217,119,6,0.38)" fontSize="5" letterSpacing="1.2" fontFamily="monospace">
+            HIGH-TEMP BAKING CHAMBER
+          </text>
+        </svg>
+      );
+
+    case 4: // Cooling Line
+      return (
+        <svg
+          viewBox="0 0 200 88"
+          className="h-full w-full"
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden="true"
+        >
+          {/* Left end roller */}
+          <circle cx="16" cy="56" r="8"
+            fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
+          <circle cx="16" cy="56" r="3" fill="rgba(255,255,255,0.14)" />
+          {/* Right end roller */}
+          <circle cx="184" cy="56" r="8"
+            fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
+          <circle cx="184" cy="56" r="3" fill="rgba(255,255,255,0.14)" />
+          {/* Top belt rail */}
+          <line x1="24" y1="48" x2="176" y2="48"
+            stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
+          {/* Bottom belt rail */}
+          <line x1="24" y1="64" x2="176" y2="64"
+            stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+          {/* Return run — dashed */}
+          <line x1="24" y1="64" x2="176" y2="64"
+            stroke="rgba(255,255,255,0.07)" strokeWidth="1" strokeDasharray="6 4" />
+          {/* Loaves on belt — three, temperature gradient: hot amber → cool steel */}
+          <rect x="30" y="37" width="30" height="11" rx="5.5"
+            fill="#D97706" opacity="0.62" stroke="rgba(217,119,6,0.45)" strokeWidth="1" />
+          <rect x="85" y="37" width="30" height="11" rx="5.5"
+            fill="#D97706" opacity="0.32" stroke="rgba(217,119,6,0.28)" strokeWidth="1" />
+          <rect x="140" y="37" width="30" height="11" rx="5.5"
+            fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.22)" strokeWidth="1" />
+          {/* Cool air — downward arrows, steel-blue */}
+          {[45, 100, 155].map((cx) => (
             <g key={cx}>
-              <line x1={cx} y1="2" x2={cx} y2="12" stroke="#93C5FD" strokeWidth="1.5" opacity="0.45" />
-              <line x1={cx - 5} y1="7" x2={cx + 5} y2="7" stroke="#93C5FD" strokeWidth="1.5" opacity="0.45" />
+              <line x1={cx} y1="12" x2={cx} y2="28"
+                stroke="rgba(147,197,253,0.38)" strokeWidth="1.5" />
+              <path d={`M${cx - 4} 25 L${cx} 31 L${cx + 4} 25`}
+                fill="none" stroke="rgba(147,197,253,0.38)" strokeWidth="1.5" strokeLinecap="round" />
             </g>
           ))}
-          {/* Cooled loaves */}
-          <ellipse cx="28" cy="40" rx="18" ry="10" fill="#D97706" opacity="0.45" />
-          <ellipse cx="80" cy="40" rx="18" ry="10" fill="#D97706" opacity="0.55" />
-          <ellipse cx="132" cy="40" rx="18" ry="10" fill="#D97706" opacity="0.65" />
-          <text x="80" y="70" textAnchor="middle" fill="rgba(147,197,253,0.5)" fontSize="6">
-            Output ready for packaging
+          {/* Flow direction marker */}
+          <path d="M172 38 L182 38"
+            stroke="rgba(255,255,255,0.22)" strokeWidth="1" markerEnd="url(#cool-arr)" />
+          <defs>
+            <marker id="cool-arr" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto">
+              <path d="M0,0 L4,2 L0,4 Z" fill="rgba(255,255,255,0.22)" />
+            </marker>
+          </defs>
+          {/* Stage label */}
+          <text x="100" y="82" textAnchor="middle"
+            fill="rgba(147,197,253,0.28)" fontSize="5" letterSpacing="1.2" fontFamily="monospace">
+            COOLING CONVEYOR LINE
           </text>
         </svg>
       );
@@ -333,56 +407,56 @@ export function HeroSection({ content }: { content: LandingContent }) {
               transformStyle: "preserve-3d",
               transition: "transform 0.25s ease-out",
             }}
-            className="relative flex h-[380px] flex-col gap-3 overflow-hidden rounded-2xl border-t-4 border-t-amber bg-navy p-5 shadow-lg md:h-[560px] md:p-7"
+            className="relative flex h-[400px] flex-col gap-2.5 overflow-hidden rounded-2xl border-t-4 border-t-amber bg-navy p-5 shadow-lg md:h-[560px] md:gap-3 md:p-7"
           >
-            {/* Depth layer 1 — grid overlay */}
+            {/* Grid overlay */}
             <div
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
+                  "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
                 backgroundSize: "32px 32px",
                 ...layer(6),
               }}
             />
 
-            {/* Depth layer 2 — stage-conditional ambient glow */}
+            {/* Stage-conditional ambient glow */}
             <div
               className={`pointer-events-none absolute left-[65%] top-[44%] h-44 w-44 rounded-full transition-all duration-500 ${isBaking ? "nl-glow" : ""}`}
               style={{
                 background: isBaking
-                  ? "radial-gradient(circle, rgba(217,119,6,0.55) 0%, rgba(217,119,6,0) 70%)"
+                  ? "radial-gradient(circle, rgba(217,119,6,0.5) 0%, rgba(217,119,6,0) 70%)"
                   : isCooling
-                  ? "radial-gradient(circle, rgba(147,197,253,0.22) 0%, rgba(147,197,253,0) 70%)"
-                  : "radial-gradient(circle, rgba(217,119,6,0.22) 0%, rgba(217,119,6,0) 70%)",
+                  ? "radial-gradient(circle, rgba(147,197,253,0.18) 0%, rgba(147,197,253,0) 70%)"
+                  : "radial-gradient(circle, rgba(217,119,6,0.18) 0%, rgba(217,119,6,0) 70%)",
                 ...layer(38),
               }}
             />
 
             {/* CE badge */}
-            <div className="absolute right-4 top-4 z-20 rounded-full border border-amber bg-amber/20 px-3 py-1">
+            <div className="absolute right-4 top-4 z-20 rounded-full border border-amber/50 bg-amber/15 px-3 py-1">
               <span className="text-micro font-semibold text-amber">CE Certified</span>
             </div>
 
-            {/* Model badge */}
+            {/* Model identifier */}
             <div className="relative z-10" style={layer(10)}>
-              <p className="text-micro uppercase tracking-overline text-amber">Model</p>
-              <p className="mt-0.5 text-h4 font-bold text-white md:text-h3">
+              <p className="text-[9px] font-medium uppercase tracking-[0.12em] text-amber/80">
+                Model
+              </p>
+              <p className="mt-0.5 text-[17px] font-bold leading-tight text-white md:text-h3">
                 NL-RM210 / Steel Master
               </p>
-              <p className="text-body-sm text-white/50">Custom Healthy Bread Production Line</p>
+              <p className="text-[11px] text-white/40">
+                Custom Healthy Bread Production Line
+              </p>
             </div>
 
-            {/* Interactive stage selector */}
+            {/* Stage selector */}
             <div className="relative z-10" style={layer(18)}>
-              <p className="mb-2 text-[9px] font-medium uppercase tracking-widest text-white/35">
-                Production Flow — select a stage
+              <p className="mb-2 text-[8px] font-medium uppercase tracking-[0.14em] text-white/30">
+                Production Flow
               </p>
-              <div
-                className="flex items-center gap-1"
-                role="group"
-                aria-label="Production stages"
-              >
+              <div className="flex items-center gap-1" role="group" aria-label="Production stages">
                 {STAGES.map((stage, i) => {
                   const isActive = activeStage === i;
                   const isLocked = lockedStage === i;
@@ -396,11 +470,11 @@ export function HeroSection({ content }: { content: LandingContent }) {
                         onFocus={() => handleStageHover(i)}
                         onClick={() => handleStageClick(i)}
                         className={[
-                          "flex flex-col items-center gap-0.5 rounded-lg border px-1.5 py-1.5 transition-all duration-200",
+                          "flex flex-col items-center gap-0.5 rounded-lg border px-1 py-1.5 transition-all duration-200",
                           "focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber focus-visible:outline-offset-2",
                           isActive
-                            ? "border-amber/50 bg-amber/10"
-                            : "border-white/10 bg-white/5 hover:border-white/25 hover:bg-white/10",
+                            ? "border-amber/45 bg-amber/10"
+                            : "border-white/10 bg-white/5 hover:border-white/22 hover:bg-white/8",
                         ].join(" ")}
                       >
                         <span
@@ -410,7 +484,7 @@ export function HeroSection({ content }: { content: LandingContent }) {
                               ? isLocked
                                 ? "nl-ring bg-amber text-navy"
                                 : "nl-ring bg-amber/20 text-amber"
-                              : "bg-white/10 text-white/50",
+                              : "bg-white/10 text-white/45",
                           ].join(" ")}
                         >
                           {i + 1}
@@ -418,7 +492,7 @@ export function HeroSection({ content }: { content: LandingContent }) {
                         <span
                           className={[
                             "hidden text-[8px] font-medium leading-none transition-colors duration-200 sm:block",
-                            isActive ? "text-amber/80" : "text-white/35",
+                            isActive ? "text-amber/75" : "text-white/30",
                           ].join(" ")}
                         >
                           {stage.name}
@@ -427,7 +501,7 @@ export function HeroSection({ content }: { content: LandingContent }) {
                       {i < STAGES.length - 1 && (
                         <svg
                           className={`mb-3 shrink-0 transition-colors duration-300 ${
-                            isActive ? "text-amber/40" : "text-white/15"
+                            isActive ? "text-amber/35" : "text-white/12"
                           }`}
                           width="10" height="7" viewBox="0 0 14 8"
                         >
@@ -444,10 +518,10 @@ export function HeroSection({ content }: { content: LandingContent }) {
               </div>
             </div>
 
-            {/* Stage visual scene — hidden on smallest screens */}
+            {/* Stage visual scene — hidden below sm */}
             <div
               key={`scene-${activeStage}`}
-              className="nl-fade-in relative z-10 hidden flex-1 sm:block"
+              className="nl-fade-in relative z-10 hidden min-h-0 flex-1 items-center sm:flex"
               style={layer(22)}
               aria-live="polite"
               aria-atomic="true"
@@ -455,44 +529,35 @@ export function HeroSection({ content }: { content: LandingContent }) {
               <StageScene index={activeStage} />
             </div>
 
-            {/* Active stage detail card */}
+            {/* Active stage detail card — compact, left amber accent */}
             <div
               key={`detail-${activeStage}`}
-              className="nl-fade-in relative z-10 rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur"
+              className="nl-fade-in relative z-10 flex overflow-hidden rounded-lg border border-white/10 bg-white/5"
               style={layer(14)}
             >
-              <div className="flex items-start gap-2.5">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-amber/20 text-[10px] font-bold text-amber">
-                  {activeStage + 1}
-                </span>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-body-sm font-semibold text-amber">
-                      {STAGES[activeStage].name}
-                    </span>
-                    <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[8px] uppercase tracking-wide text-white/40">
-                      {lockedStage === activeStage ? "Locked" : "Active Stage"}
-                    </span>
-                  </div>
-                  <p className="mt-0.5 text-[11px] leading-relaxed text-white/55">
-                    {STAGES[activeStage].detail}
-                  </p>
-                </div>
+              <div className="w-[3px] shrink-0 bg-amber/55" />
+              <div className="px-3 py-2.5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-amber/80">
+                  {STAGES[activeStage].name}
+                </p>
+                <p className="mt-0.5 text-[11px] leading-relaxed text-white/48">
+                  {STAGES[activeStage].detail}
+                </p>
               </div>
             </div>
 
-            {/* Floating spec cards */}
-            <div className="relative z-10 grid grid-cols-3 gap-1.5 md:gap-2" style={layer(26)}>
+            {/* Spec cards */}
+            <div className="relative z-10 grid grid-cols-3 gap-1.5" style={layer(26)}>
               {SPEC_CARDS.map((card, i) => (
                 <div
                   key={card.label}
-                  className="nl-float rounded-xl border border-white/15 bg-white/10 p-2 text-center backdrop-blur"
+                  className="nl-float rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-center"
                   style={{ animationDelay: `${i * 0.6}s` }}
                 >
-                  <p className="text-[11px] font-bold text-amber md:text-body-sm">
+                  <p className="text-[10px] font-bold leading-tight text-amber">
                     {card.value}
                   </p>
-                  <p className="mt-0.5 text-[9px] text-white/45 md:text-[10px]">
+                  <p className="mt-0.5 text-[8px] leading-tight text-white/38">
                     {card.label}
                   </p>
                 </div>

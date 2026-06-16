@@ -40,244 +40,200 @@ const STAGES = [
 
 /**
  * Technical line-art SVG scene for each production stage.
- * Industrial aesthetic: stroked geometry, amber accent for the active element,
- * monospace annotations. No filled blobs or cartoon shapes.
+ * Industrial aesthetic: stroked geometry, rails, chambers, rollers and
+ * conveyors, with amber as the single active accent and monospace
+ * annotations. No filled blobs, no cartoon shapes.
  */
 function StageScene({ index }: { index: number }) {
   switch (index) {
-    case 0: // Divider
+    case 0: // Divider — intake hopper, cutting blade, equal portion outputs
       return (
         <svg
-          viewBox="0 0 200 88"
+          viewBox="0 0 200 84"
           className="h-full w-full"
           preserveAspectRatio="xMidYMid meet"
           aria-hidden="true"
         >
-          {/* Feed block */}
-          <rect x="62" y="4" width="76" height="26" rx="2"
-            fill="rgba(217,119,6,0.07)" stroke="rgba(255,255,255,0.22)" strokeWidth="1.5" />
-          {/* Interior texture lines */}
-          <line x1="68" y1="12" x2="132" y2="12" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
-          <line x1="68" y1="20" x2="132" y2="20" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
-          {/* Divider blade — amber, heavy */}
-          <line x1="100" y1="30" x2="100" y2="60"
-            stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" />
-          <path d="M94 57 L100 67 L106 57 Z" fill="#D97706" />
           {/* Guide rails */}
-          <line x1="14" y1="30" x2="14" y2="70" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-          <line x1="186" y1="30" x2="186" y2="70" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-          {/* Left output block */}
-          <rect x="14" y="70" width="70" height="14" rx="2"
-            fill="rgba(217,119,6,0.08)" stroke="rgba(217,119,6,0.38)" strokeWidth="1" />
-          {/* Right output block */}
-          <rect x="116" y="70" width="70" height="14" rx="2"
-            fill="rgba(217,119,6,0.08)" stroke="rgba(217,119,6,0.38)" strokeWidth="1" />
+          <line x1="12" y1="6" x2="12" y2="64" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+          <line x1="188" y1="6" x2="188" y2="64" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+          {/* Intake hopper — narrows toward the blade */}
+          <path d="M70 6 L130 6 L112 26 L88 26 Z"
+            fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.22)" strokeWidth="1.5" strokeLinejoin="round" />
+          <line x1="84" y1="13" x2="116" y2="13" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+          {/* Divider blade — amber, heavy, with tip */}
+          <line x1="100" y1="26" x2="100" y2="48" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" />
+          <path d="M95 45 L100 53 L105 45 Z" fill="#D97706" />
+          {/* Split paths to the two outputs */}
+          <path d="M94 50 Q70 56 50 60" stroke="rgba(217,119,6,0.3)" strokeWidth="1" fill="none" strokeLinecap="round" />
+          <path d="M106 50 Q130 56 150 60" stroke="rgba(217,119,6,0.3)" strokeWidth="1" fill="none" strokeLinecap="round" />
+          {/* Equal-weight output blocks */}
+          <rect x="18" y="60" width="64" height="13" rx="2"
+            fill="rgba(217,119,6,0.08)" stroke="rgba(217,119,6,0.4)" strokeWidth="1" />
+          <rect x="118" y="60" width="64" height="13" rx="2"
+            fill="rgba(217,119,6,0.08)" stroke="rgba(217,119,6,0.4)" strokeWidth="1" />
           {/* Weight annotations */}
-          <text x="49" y="81" textAnchor="middle"
-            fill="rgba(217,119,6,0.65)" fontSize="6.5" fontFamily="monospace">30–100 g</text>
-          <text x="151" y="81" textAnchor="middle"
-            fill="rgba(217,119,6,0.65)" fontSize="6.5" fontFamily="monospace">30–100 g</text>
-          {/* Stage label */}
-          <text x="100" y="88" textAnchor="middle"
-            fill="rgba(255,255,255,0.18)" fontSize="5" letterSpacing="1.2" fontFamily="monospace">
-            DOUGH DIVIDER
+          <text x="50" y="69" textAnchor="middle" fill="rgba(217,119,6,0.7)" fontSize="6.5" fontFamily="monospace">30–100 g</text>
+          <text x="150" y="69" textAnchor="middle" fill="rgba(217,119,6,0.7)" fontSize="6.5" fontFamily="monospace">30–100 g</text>
+          {/* Schematic label */}
+          <text x="100" y="82" textAnchor="middle" fill="rgba(255,255,255,0.16)" fontSize="5" letterSpacing="1.2" fontFamily="monospace">
+            DOUGH DIVIDER · PORTION CONTROL
           </text>
         </svg>
       );
 
-    case 1: // Proofer
+    case 1: // Proofer — insulated chamber, heating element, temp gauge
       return (
         <svg
-          viewBox="0 0 200 88"
+          viewBox="0 0 200 84"
           className="h-full w-full"
           preserveAspectRatio="xMidYMid meet"
           aria-hidden="true"
         >
           {/* Outer insulated wall */}
-          <rect x="6" y="8" width="188" height="66" rx="3"
-            fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" />
+          <rect x="6" y="6" width="188" height="62" rx="3" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" />
           {/* Inner chamber */}
-          <rect x="13" y="15" width="174" height="52" rx="2"
-            fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
-          {/* Heating element — amber segmented bar */}
-          <line x1="26" y1="25" x2="44" y2="25" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
-          <line x1="50" y1="25" x2="68" y2="25" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
-          <line x1="74" y1="25" x2="92" y2="25" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
-          <line x1="98" y1="25" x2="116" y2="25" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
-          <line x1="122" y1="25" x2="140" y2="25" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
-          <line x1="146" y1="25" x2="164" y2="25" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
-          <line x1="170" y1="25" x2="176" y2="25" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
+          <rect x="12" y="12" width="176" height="50" rx="2" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+          {/* Heating element — segmented amber coil along the top */}
+          {[24, 48, 72, 96, 120, 144].map((x) => (
+            <line key={x} x1={x} y1="22" x2={x + 18} y2="22" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" opacity="0.75" />
+          ))}
+          {/* Temperature gauge — small dial, top right inside chamber */}
+          <circle cx="172" cy="24" r="8" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
+          <line x1="172" y1="24" x2="176" y2="20" stroke="#D97706" strokeWidth="1.2" strokeLinecap="round" />
+          <circle cx="172" cy="24" r="1.2" fill="#D97706" />
           {/* Shelf rail */}
-          <line x1="20" y1="58" x2="180" y2="58"
-            stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-          {/* Dough pieces — upright rectangles on shelf */}
-          <rect x="36" y="44" width="24" height="14" rx="1"
-            fill="rgba(217,119,6,0.14)" stroke="rgba(217,119,6,0.38)" strokeWidth="1" />
-          <rect x="88" y="44" width="24" height="14" rx="1"
-            fill="rgba(217,119,6,0.14)" stroke="rgba(217,119,6,0.38)" strokeWidth="1" />
-          <rect x="140" y="44" width="24" height="14" rx="1"
-            fill="rgba(217,119,6,0.14)" stroke="rgba(217,119,6,0.38)" strokeWidth="1" />
+          <line x1="18" y1="54" x2="160" y2="54" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+          {/* Dough pieces resting on shelf */}
+          {[34, 84, 134].map((x) => (
+            <rect key={x} x={x} y="40" width="24" height="14" rx="2"
+              fill="rgba(217,119,6,0.14)" stroke="rgba(217,119,6,0.4)" strokeWidth="1" />
+          ))}
           {/* Heat circulation arrows */}
-          {[48, 100, 152].map((cx) => (
+          {[46, 96, 146].map((cx) => (
             <g key={cx}>
-              <line x1={cx} y1="42" x2={cx} y2="32"
-                stroke="rgba(217,119,6,0.28)" strokeWidth="1" strokeDasharray="2 2" />
-              <path d={`M${cx - 3} 34 L${cx} 29 L${cx + 3} 34`}
-                fill="none" stroke="rgba(217,119,6,0.28)" strokeWidth="1" strokeLinecap="round" />
+              <line x1={cx} y1="38" x2={cx} y2="28" stroke="rgba(217,119,6,0.28)" strokeWidth="1" strokeDasharray="2 2" />
+              <path d={`M${cx - 3} 30 L${cx} 26 L${cx + 3} 30`} fill="none" stroke="rgba(217,119,6,0.28)" strokeWidth="1" strokeLinecap="round" />
             </g>
           ))}
-          {/* Stage label */}
-          <text x="100" y="84" textAnchor="middle"
-            fill="rgba(255,255,255,0.18)" fontSize="5" letterSpacing="1.2" fontFamily="monospace">
+          {/* Schematic label */}
+          <text x="100" y="80" textAnchor="middle" fill="rgba(255,255,255,0.16)" fontSize="5" letterSpacing="1.2" fontFamily="monospace">
             TEMPERATURE-CONTROLLED PROOFER
           </text>
         </svg>
       );
 
-    case 2: // Forming
+    case 2: // Forming — sheeter rollers, forked output to round / square
       return (
         <svg
-          viewBox="0 0 200 88"
+          viewBox="0 0 200 84"
           className="h-full w-full"
           preserveAspectRatio="xMidYMid meet"
           aria-hidden="true"
         >
-          {/* Input dough block */}
-          <rect x="74" y="4" width="52" height="16" rx="1"
-            fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" />
-          <line x1="74" y1="10" x2="126" y2="10" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
-          {/* Dough strip feeding in */}
-          <rect x="82" y="20" width="36" height="10" rx="1"
-            fill="rgba(217,119,6,0.18)" stroke="rgba(217,119,6,0.3)" strokeWidth="1" />
-          {/* Sheeter roller — thick bar with amber nip line */}
-          <rect x="10" y="30" width="180" height="10" rx="5"
-            fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.28)" strokeWidth="1.5" />
-          <line x1="10" y1="35" x2="190" y2="35"
-            stroke="#D97706" strokeWidth="1" opacity="0.45" />
-          {/* Roller end caps */}
-          <rect x="6" y="30" width="6" height="10" rx="3" fill="rgba(255,255,255,0.18)" />
-          <rect x="188" y="30" width="6" height="10" rx="3" fill="rgba(255,255,255,0.18)" />
-          {/* Fork dividing paths */}
-          <path d="M72 46 L38 64"
-            stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinecap="round" />
-          <path d="M128 46 L162 64"
-            stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinecap="round" />
-          {/* Round loaf */}
-          <circle cx="34" cy="75" r="13"
-            fill="rgba(217,119,6,0.1)" stroke="rgba(217,119,6,0.5)" strokeWidth="1.5" />
-          <text x="34" y="79" textAnchor="middle"
-            fill="rgba(217,119,6,0.72)" fontSize="5.5" fontWeight="700" fontFamily="monospace">ROUND</text>
-          {/* Square loaf */}
-          <rect x="149" y="62" width="26" height="26" rx="2"
-            fill="rgba(217,119,6,0.1)" stroke="rgba(217,119,6,0.5)" strokeWidth="1.5" />
-          <text x="162" y="79" textAnchor="middle"
-            fill="rgba(217,119,6,0.72)" fontSize="5.5" fontWeight="700" fontFamily="monospace">SQUARE</text>
-          {/* Stage label */}
-          <text x="100" y="88" textAnchor="middle"
-            fill="rgba(255,255,255,0.18)" fontSize="5" letterSpacing="1.2" fontFamily="monospace">
+          {/* Incoming dough strip */}
+          <rect x="80" y="4" width="40" height="9" rx="1" fill="rgba(217,119,6,0.18)" stroke="rgba(217,119,6,0.3)" strokeWidth="1" />
+          {/* Sheeter roller pair — two stacked bars with amber nip line */}
+          <rect x="10" y="18" width="180" height="9" rx="4.5" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.28)" strokeWidth="1.5" />
+          <line x1="14" y1="29.5" x2="186" y2="29.5" stroke="#D97706" strokeWidth="1.5" opacity="0.5" />
+          <rect x="10" y="32" width="180" height="9" rx="4.5" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" />
+          {/* Roller end caps (axles) */}
+          <circle cx="10" cy="22.5" r="3.5" fill="rgba(255,255,255,0.18)" />
+          <circle cx="190" cy="22.5" r="3.5" fill="rgba(255,255,255,0.18)" />
+          {/* Forked output paths */}
+          <path d="M78 46 Q56 52 42 60" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+          <path d="M122 46 Q144 52 158 60" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+          {/* Round loaf output */}
+          <circle cx="40" cy="68" r="12" fill="rgba(217,119,6,0.1)" stroke="rgba(217,119,6,0.5)" strokeWidth="1.5" />
+          <text x="40" y="71" textAnchor="middle" fill="rgba(217,119,6,0.72)" fontSize="5.5" fontWeight="700" fontFamily="monospace">ROUND</text>
+          {/* Square loaf output */}
+          <rect x="146" y="56" width="24" height="24" rx="2" fill="rgba(217,119,6,0.1)" stroke="rgba(217,119,6,0.5)" strokeWidth="1.5" />
+          <text x="158" y="71" textAnchor="middle" fill="rgba(217,119,6,0.72)" fontSize="5.5" fontWeight="700" fontFamily="monospace">SQUARE</text>
+          {/* Schematic label */}
+          <text x="100" y="82" textAnchor="middle" fill="rgba(255,255,255,0.16)" fontSize="5" letterSpacing="1.2" fontFamily="monospace">
             SHEETER + FORMING UNIT
           </text>
         </svg>
       );
 
-    case 3: // Baking Chamber
+    case 3: // Baking — insulated chamber, rack, burner bar, convection
       return (
         <svg
-          viewBox="0 0 200 88"
+          viewBox="0 0 200 84"
           className="h-full w-full"
           preserveAspectRatio="xMidYMid meet"
           aria-hidden="true"
         >
           {/* Outer shell */}
-          <rect x="6" y="8" width="188" height="68" rx="3"
-            fill="rgba(124,29,7,0.32)" stroke="rgba(217,119,6,0.38)" strokeWidth="1.5" />
-          {/* Insulation inner wall */}
-          <rect x="12" y="14" width="176" height="56" rx="2"
-            fill="rgba(124,29,7,0.18)" stroke="rgba(217,119,6,0.14)" strokeWidth="1" />
-          {/* Baking rack rail */}
-          <line x1="22" y1="58" x2="178" y2="58"
-            stroke="rgba(255,255,255,0.22)" strokeWidth="1" />
-          {/* Rack vertical supports */}
-          {[40, 100, 160].map((x) => (
-            <line key={x} x1={x} y1="58" x2={x} y2="68"
-              stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+          <rect x="6" y="6" width="188" height="64" rx="3" fill="rgba(124,29,7,0.3)" stroke="rgba(217,119,6,0.4)" strokeWidth="1.5" />
+          {/* Inner insulation wall */}
+          <rect x="12" y="12" width="176" height="52" rx="2" fill="rgba(124,29,7,0.16)" stroke="rgba(217,119,6,0.14)" strokeWidth="1" />
+          {/* Temperature gauge — top right */}
+          <circle cx="172" cy="22" r="8" fill="none" stroke="rgba(217,119,6,0.35)" strokeWidth="1" />
+          <line x1="172" y1="22" x2="177" y2="19" stroke="#D97706" strokeWidth="1.2" strokeLinecap="round" />
+          <circle cx="172" cy="22" r="1.2" fill="#D97706" />
+          {/* Baking rack rail + supports */}
+          <line x1="20" y1="54" x2="150" y2="54" stroke="rgba(255,255,255,0.22)" strokeWidth="1" />
+          {[36, 86, 136].map((x) => (
+            <line key={x} x1={x} y1="54" x2={x} y2="62" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
           ))}
-          {/* Baked loaves on rack — rounded rectangle silhouette */}
-          <rect x="24" y="44" width="32" height="14" rx="7"
-            fill="#92400E" stroke="rgba(217,119,6,0.42)" strokeWidth="1" />
-          <rect x="84" y="44" width="32" height="14" rx="7"
-            fill="#92400E" stroke="rgba(217,119,6,0.42)" strokeWidth="1" />
-          <rect x="144" y="44" width="32" height="14" rx="7"
-            fill="#92400E" stroke="rgba(217,119,6,0.42)" strokeWidth="1" />
-          {/* Burner bar — amber, bottom of chamber */}
-          <rect x="22" y="66" width="156" height="3" rx="1.5"
-            fill="#D97706" opacity="0.55" />
-          {/* Heat convection paths */}
-          {[48, 100, 152].map((cx) => (
-            <path key={cx}
-              d={`M${cx} 64 Q${cx + 5} 54 ${cx} 44 Q${cx - 5} 34 ${cx} 24`}
+          {/* Loaves on rack */}
+          {[22, 72, 122].map((x) => (
+            <rect key={x} x={x} y="40" width="30" height="14" rx="7"
+              fill="#92400E" stroke="rgba(217,119,6,0.42)" strokeWidth="1" />
+          ))}
+          {/* Burner bar at chamber floor */}
+          <rect x="20" y="62" width="148" height="3" rx="1.5" fill="#D97706" opacity="0.5" />
+          {/* Convection paths rising through the rack */}
+          {[37, 87, 137].map((cx) => (
+            <path key={cx} d={`M${cx} 60 Q${cx + 5} 50 ${cx} 40 Q${cx - 5} 32 ${cx} 24`}
               stroke="rgba(217,119,6,0.2)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
           ))}
-          {/* Stage label */}
-          <text x="100" y="86" textAnchor="middle"
-            fill="rgba(217,119,6,0.38)" fontSize="5" letterSpacing="1.2" fontFamily="monospace">
+          {/* Schematic label */}
+          <text x="100" y="80" textAnchor="middle" fill="rgba(217,119,6,0.35)" fontSize="5" letterSpacing="1.2" fontFamily="monospace">
             HIGH-TEMP BAKING CHAMBER
           </text>
         </svg>
       );
 
-    case 4: // Cooling Line
+    case 4: // Cooling — conveyor with end rollers, temp-gradient loaves, cool air
       return (
         <svg
-          viewBox="0 0 200 88"
+          viewBox="0 0 200 84"
           className="h-full w-full"
           preserveAspectRatio="xMidYMid meet"
           aria-hidden="true"
         >
-          {/* Left end roller */}
-          <circle cx="16" cy="56" r="8"
-            fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
-          <circle cx="16" cy="56" r="3" fill="rgba(255,255,255,0.14)" />
-          {/* Right end roller */}
-          <circle cx="184" cy="56" r="8"
-            fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
-          <circle cx="184" cy="56" r="3" fill="rgba(255,255,255,0.14)" />
-          {/* Top belt rail */}
-          <line x1="24" y1="48" x2="176" y2="48"
-            stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
-          {/* Bottom belt rail */}
-          <line x1="24" y1="64" x2="176" y2="64"
-            stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
-          {/* Return run — dashed */}
-          <line x1="24" y1="64" x2="176" y2="64"
-            stroke="rgba(255,255,255,0.07)" strokeWidth="1" strokeDasharray="6 4" />
-          {/* Loaves on belt — three, temperature gradient: hot amber → cool steel */}
-          <rect x="30" y="37" width="30" height="11" rx="5.5"
-            fill="#D97706" opacity="0.62" stroke="rgba(217,119,6,0.45)" strokeWidth="1" />
-          <rect x="85" y="37" width="30" height="11" rx="5.5"
-            fill="#D97706" opacity="0.32" stroke="rgba(217,119,6,0.28)" strokeWidth="1" />
-          <rect x="140" y="37" width="30" height="11" rx="5.5"
-            fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.22)" strokeWidth="1" />
-          {/* Cool air — downward arrows, steel-blue */}
+          {/* End rollers */}
+          <circle cx="16" cy="54" r="8" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
+          <circle cx="16" cy="54" r="2.6" fill="rgba(255,255,255,0.14)" />
+          <circle cx="184" cy="54" r="8" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
+          <circle cx="184" cy="54" r="2.6" fill="rgba(255,255,255,0.14)" />
+          {/* Belt rails */}
+          <line x1="24" y1="46" x2="176" y2="46" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
+          <line x1="24" y1="62" x2="176" y2="62" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+          {/* Return run, dashed */}
+          <line x1="24" y1="62" x2="176" y2="62" stroke="rgba(255,255,255,0.07)" strokeWidth="1" strokeDasharray="6 4" />
+          {/* Loaves cooling along belt — amber (hot) → steel (cool) */}
+          <rect x="30" y="35" width="30" height="11" rx="5.5" fill="#D97706" opacity="0.6" stroke="rgba(217,119,6,0.45)" strokeWidth="1" />
+          <rect x="85" y="35" width="30" height="11" rx="5.5" fill="#D97706" opacity="0.3" stroke="rgba(217,119,6,0.28)" strokeWidth="1" />
+          <rect x="140" y="35" width="30" height="11" rx="5.5" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.22)" strokeWidth="1" />
+          {/* Cool-air downflow arrows, steel-blue */}
           {[45, 100, 155].map((cx) => (
             <g key={cx}>
-              <line x1={cx} y1="12" x2={cx} y2="28"
-                stroke="rgba(147,197,253,0.38)" strokeWidth="1.5" />
-              <path d={`M${cx - 4} 25 L${cx} 31 L${cx + 4} 25`}
-                fill="none" stroke="rgba(147,197,253,0.38)" strokeWidth="1.5" strokeLinecap="round" />
+              <line x1={cx} y1="8" x2={cx} y2="24" stroke="rgba(147,197,253,0.4)" strokeWidth="1.5" />
+              <path d={`M${cx - 4} 21 L${cx} 27 L${cx + 4} 21`} fill="none" stroke="rgba(147,197,253,0.4)" strokeWidth="1.5" strokeLinecap="round" />
             </g>
           ))}
           {/* Flow direction marker */}
-          <path d="M172 38 L182 38"
-            stroke="rgba(255,255,255,0.22)" strokeWidth="1" markerEnd="url(#cool-arr)" />
+          <path d="M172 40 L182 40" stroke="rgba(255,255,255,0.22)" strokeWidth="1" markerEnd="url(#cool-arr)" />
           <defs>
             <marker id="cool-arr" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto">
               <path d="M0,0 L4,2 L0,4 Z" fill="rgba(255,255,255,0.22)" />
             </marker>
           </defs>
-          {/* Stage label */}
-          <text x="100" y="82" textAnchor="middle"
-            fill="rgba(147,197,253,0.28)" fontSize="5" letterSpacing="1.2" fontFamily="monospace">
+          {/* Schematic label */}
+          <text x="100" y="80" textAnchor="middle" fill="rgba(147,197,253,0.3)" fontSize="5" letterSpacing="1.2" fontFamily="monospace">
             COOLING CONVEYOR LINE
           </text>
         </svg>
@@ -340,6 +296,7 @@ export function HeroSection({ content }: { content: LandingContent }) {
 
   const isBaking = activeStage === 3;
   const isCooling = activeStage === 4;
+  const isLocked = lockedStage === activeStage;
 
   return (
     <section id="overview" className="bg-gradient-to-br from-white to-steel-pale">
@@ -407,7 +364,7 @@ export function HeroSection({ content }: { content: LandingContent }) {
               transformStyle: "preserve-3d",
               transition: "transform 0.25s ease-out",
             }}
-            className="relative flex h-[400px] flex-col gap-2.5 overflow-hidden rounded-2xl border-t-4 border-t-amber bg-navy p-5 shadow-lg md:h-[560px] md:gap-3 md:p-7"
+            className="relative flex h-[440px] flex-col gap-3 overflow-hidden rounded-2xl border-t-4 border-t-amber bg-navy p-5 shadow-lg md:h-[560px] md:p-7"
           >
             {/* Grid overlay */}
             <div
@@ -422,13 +379,13 @@ export function HeroSection({ content }: { content: LandingContent }) {
 
             {/* Stage-conditional ambient glow */}
             <div
-              className={`pointer-events-none absolute left-[65%] top-[44%] h-44 w-44 rounded-full transition-all duration-500 ${isBaking ? "nl-glow" : ""}`}
+              className={`pointer-events-none absolute left-[65%] top-[46%] h-44 w-44 rounded-full transition-all duration-500 ${isBaking ? "nl-glow" : ""}`}
               style={{
                 background: isBaking
-                  ? "radial-gradient(circle, rgba(217,119,6,0.5) 0%, rgba(217,119,6,0) 70%)"
+                  ? "radial-gradient(circle, rgba(217,119,6,0.45) 0%, rgba(217,119,6,0) 70%)"
                   : isCooling
-                  ? "radial-gradient(circle, rgba(147,197,253,0.18) 0%, rgba(147,197,253,0) 70%)"
-                  : "radial-gradient(circle, rgba(217,119,6,0.18) 0%, rgba(217,119,6,0) 70%)",
+                  ? "radial-gradient(circle, rgba(147,197,253,0.16) 0%, rgba(147,197,253,0) 70%)"
+                  : "radial-gradient(circle, rgba(217,119,6,0.16) 0%, rgba(217,119,6,0) 70%)",
                 ...layer(38),
               }}
             />
@@ -458,32 +415,32 @@ export function HeroSection({ content }: { content: LandingContent }) {
               </p>
               <div className="flex items-center gap-1" role="group" aria-label="Production stages">
                 {STAGES.map((stage, i) => {
-                  const isActive = activeStage === i;
-                  const isLocked = lockedStage === i;
+                  const active = activeStage === i;
+                  const locked = lockedStage === i;
                   return (
                     <div key={stage.name} className="flex items-center gap-1">
                       <button
                         type="button"
-                        aria-pressed={isLocked}
-                        aria-label={`${stage.name}${isLocked ? " — locked" : ""}`}
+                        aria-pressed={locked}
+                        aria-label={`${stage.name}${locked ? " — selected" : ""}`}
                         onMouseEnter={() => handleStageHover(i)}
                         onFocus={() => handleStageHover(i)}
                         onClick={() => handleStageClick(i)}
                         className={[
                           "flex flex-col items-center gap-0.5 rounded-lg border px-1 py-1.5 transition-all duration-200",
                           "focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber focus-visible:outline-offset-2",
-                          isActive
+                          active
                             ? "border-amber/45 bg-amber/10"
-                            : "border-white/10 bg-white/5 hover:border-white/22 hover:bg-white/8",
+                            : "border-white/10 bg-white/5 hover:border-white/22 hover:bg-white/[0.08]",
                         ].join(" ")}
                       >
                         <span
                           className={[
                             "flex h-7 w-7 items-center justify-center rounded-md text-[10px] font-bold transition-all duration-200",
-                            isActive
-                              ? isLocked
-                                ? "nl-ring bg-amber text-navy"
-                                : "nl-ring bg-amber/20 text-amber"
+                            locked
+                              ? "nl-ring bg-amber text-navy"
+                              : active
+                              ? "bg-amber/20 text-amber"
                               : "bg-white/10 text-white/45",
                           ].join(" ")}
                         >
@@ -492,7 +449,7 @@ export function HeroSection({ content }: { content: LandingContent }) {
                         <span
                           className={[
                             "hidden text-[8px] font-medium leading-none transition-colors duration-200 sm:block",
-                            isActive ? "text-amber/75" : "text-white/30",
+                            active ? "text-amber/75" : "text-white/30",
                           ].join(" ")}
                         >
                           {stage.name}
@@ -501,7 +458,7 @@ export function HeroSection({ content }: { content: LandingContent }) {
                       {i < STAGES.length - 1 && (
                         <svg
                           className={`mb-3 shrink-0 transition-colors duration-300 ${
-                            isActive ? "text-amber/35" : "text-white/12"
+                            active ? "text-amber/35" : "text-white/[0.12]"
                           }`}
                           width="10" height="7" viewBox="0 0 14 8"
                         >
@@ -518,15 +475,47 @@ export function HeroSection({ content }: { content: LandingContent }) {
               </div>
             </div>
 
-            {/* Stage visual scene — hidden below sm */}
+            {/* Technical viewport — schematic chrome around the live scene */}
             <div
-              key={`scene-${activeStage}`}
-              className="nl-fade-in relative z-10 hidden min-h-0 flex-1 items-center sm:flex"
+              className="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-white/10 bg-black/15"
               style={layer(22)}
-              aria-live="polite"
-              aria-atomic="true"
             >
-              <StageScene index={activeStage} />
+              {/* Viewport status bar */}
+              <div className="flex items-center justify-between border-b border-white/[0.06] px-2.5 py-1.5">
+                <span className="text-[8px] font-medium uppercase tracking-[0.12em] text-white/30">
+                  {`Stage 0${activeStage + 1} / 0${STAGES.length}`}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      isLocked ? "bg-amber" : "bg-white/40"
+                    }`}
+                  />
+                  <span
+                    className={`text-[8px] font-medium uppercase tracking-[0.12em] ${
+                      isLocked ? "text-amber/70" : "text-white/30"
+                    }`}
+                  >
+                    {isLocked ? "Selected" : "Preview"}
+                  </span>
+                </span>
+              </div>
+
+              {/* Live scene */}
+              <div
+                key={`scene-${activeStage}`}
+                className="nl-fade-in flex min-h-0 flex-1 items-center px-3 py-2"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                <StageScene index={activeStage} />
+              </div>
+
+              {/* Corner ticks */}
+              <span className="pointer-events-none absolute left-1.5 top-1.5 h-1.5 w-1.5 border-l border-t border-amber/30" />
+              <span className="pointer-events-none absolute right-1.5 top-1.5 h-1.5 w-1.5 border-r border-t border-amber/30" />
+              <span className="pointer-events-none absolute bottom-1.5 left-1.5 h-1.5 w-1.5 border-b border-l border-amber/30" />
+              <span className="pointer-events-none absolute bottom-1.5 right-1.5 h-1.5 w-1.5 border-b border-r border-amber/30" />
             </div>
 
             {/* Active stage detail card — compact, left amber accent */}
@@ -546,13 +535,12 @@ export function HeroSection({ content }: { content: LandingContent }) {
               </div>
             </div>
 
-            {/* Spec cards */}
+            {/* Spec cards — static, supporting role */}
             <div className="relative z-10 grid grid-cols-3 gap-1.5" style={layer(26)}>
-              {SPEC_CARDS.map((card, i) => (
+              {SPEC_CARDS.map((card) => (
                 <div
                   key={card.label}
-                  className="nl-float rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-center"
-                  style={{ animationDelay: `${i * 0.6}s` }}
+                  className="rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-center"
                 >
                   <p className="text-[10px] font-bold leading-tight text-amber">
                     {card.value}

@@ -8,234 +8,390 @@ Model: **NL-RM210 / Steel Master**
 
 # 0. Session Goal
 
-Turn the production calculator and the lead qualification form into precise, implementation-ready specifications.
+Create an implementation-ready UX logic document for the production calculator and lead qualification form.
 
-This document defines:
+This document covers:
 
-- Every calculator input, its type, and constraints
-- Every calculator output and how it is derived
-- Exact formula logic and result-state thresholds
-- Add-on recommendation logic
-- Validation rules and edge-case handling
-- Step-by-step lead form UX with field-level rules
-- Prefill behavior from calculator into the form
-- The final structured lead data payload
-- WhatsApp and email notification templates for the sales team
-- Success/thank-you behavior
-- Implementation notes for the future frontend build
+1. Calculator input fields
+2. Calculator output fields
+3. Calculator formula logic
+4. Calculator result states
+5. Add-on recommendation logic
+6. Input validation rules
+7. Edge cases
+8. Lead form step-by-step UX
+9. Form validation rules
+10. Prefill behavior from calculator to form
+11. Final lead data payload structure
+12. WhatsApp message templates
+13. Email notification templates
+14. Thank-you / success message
+15. Implementation notes for future frontend build
 
-## Hard Rules (carried from CLAUDE.md)
+Important:
 
-- **No prices, no cost output, no financial calculation anywhere.**
-- The calculator estimates **production capacity only**.
-- The line is **customizable and built-to-order**.
-- The form exists to give sales enough data to prepare a **short customized quotation**.
-- All capacity numbers must be framed as **dependent on configuration**.
-
----
-
-# 1. Calculator Input Fields
-
-The calculator is a qualification tool. It collects the minimum data needed to estimate required hourly production and to suggest a configuration direction.
-
-| # | Field | Key | Type | Required | Options / Range | Default | Placeholder |
-|---|-------|-----|------|----------|-----------------|---------|-------------|
-| 1 | Required Loaves Per Day | `dailyLoaves` | Number (integer) | Yes | 1 – 5,000,000 | empty | `Example: 50,000` |
-| 2 | Daily Working Hours | `dailyWorkingHours` | Number (decimal, 1 dp) | Yes | 1 – 24 | empty | `Example: 10` |
-| 3 | Monthly Working Days | `monthlyWorkingDays` | Number (integer) | Yes | 1 – 31 | `26` | `Example: 26` |
-| 4 | Target Loaf Weight | `loafWeight` | Single-select | Yes | `30g`, `50g`, `70g`, `100g`, `Custom` | none | — |
-| 5 | Target Loaf Shape | `loafShape` | Single-select | Yes | `Round`, `Square`, `Not sure yet` | none | — |
-| 6 | Target Loaf Size | `loafSize` | Single-select | Yes | `20cm`, `25cm`, `30cm`, `Custom` | none | — |
-| 7 | Need a Mixing System? | `needsMixing` | Single-select | Yes | `Yes`, `No`, `Not sure` | none | — |
-| 8 | Need Counting / Packaging Support? | `needsPackaging` | Single-select | Yes | `Yes`, `No`, `Not sure` | none | — |
-
-## 1.1 Custom Value Sub-Fields
-
-When `loafWeight = Custom`, reveal:
-- `loafWeightCustom` — Number, 10 – 500, suffix `g`, required if shown.
-
-When `loafSize = Custom`, reveal:
-- `loafSizeCustom` — Number, 5 – 80, suffix `cm`, required if shown.
-
-These custom values are **collected and passed to sales**, but do **not** change the capacity formula (capacity is driven by daily loaves and working hours). They inform the configuration note and the eventual technical review.
-
-## 1.2 Step Grouping (UX from Session 4)
-
-Per the wireframe, the calculator groups inputs into steps:
-
-- **Step 1 — Production Need:** `dailyLoaves`, `dailyWorkingHours`, `monthlyWorkingDays`
-- **Step 2 — Product Specs:** `loafShape`, `loafWeight`, `loafSize`
-- **Step 3 — Automation Needs:** `needsMixing`, `needsPackaging`
-- **Step 4 — Recommendation:** read-only results + CTA
-
-On **desktop**, all inputs may appear in a single left panel with live results on the right (Session 4 §5.7). On **mobile**, use the 4-step flow (Session 4 §6.6). The logic below is identical in both layouts.
+- The calculator is for production estimation only.
+- The calculator must never output prices.
+- The form supports sales qualification for a customized quotation.
 
 ---
 
-# 2. Calculator Output Fields
+# 1. Calculator UX Overview
 
-| # | Output | Key | Type | Source |
-|---|--------|-----|------|--------|
-| 1 | Required Hourly Production | `requiredHourlyProduction` | Number (loaves/hour) | Formula §3.1 |
-| 2 | Estimated Monthly Production | `monthlyProduction` | Number (loaves/month) | Formula §3.2 |
-| 3 | Configuration Direction | `configurationDirection` | Enum: `standard` \| `custom` \| `higher_capacity` | Logic §4 |
-| 4 | Configuration Message | `configurationMessage` | String (from copy) | Logic §4 |
-| 5 | Suggested Add-ons | `suggestedAddons` | String array | Logic §5 |
-| 6 | Capacity Fit Indicator | `capacityFit` | Enum for gauge: `within` \| `upper` \| `beyond` | Maps from §4 |
+The calculator should help visitors estimate their required hourly production and guide them toward the right sales conversation.
 
-## 2.1 Output Display Rules
+It should answer:
 
-- `requiredHourlyProduction` is displayed **rounded up** to the nearest whole loaf (you cannot produce a fraction of a loaf, and rounding up avoids under-speccing the line). Display with thousands separators, e.g. `5,000`.
-- `monthlyProduction` is displayed as a whole number with thousands separators.
-- All numbers use tabular numerals (Session 5 §2.1).
-- The gauge (Session 3 §6, Session 5 §10.5) visually moves across three zones mapped from `capacityFit`.
-- The disclaimer is **always** shown beneath results (see §4.5).
+- How many loaves per hour do I need?
+- Is my target within the standard/lower range?
+- Do I need a custom configuration?
+- Do I need a higher-capacity study?
+- What add-ons may be relevant?
 
----
+The calculator should never answer:
 
-# 3. Calculator Formula Logic
-
-## 3.1 Required Hourly Production
-
-```
-requiredHourlyProduction = ceil(dailyLoaves / dailyWorkingHours)
-```
-
-- `ceil` (round up) ensures the recommended line speed can meet the daily target within the stated working hours.
-- Unit: loaves per hour.
-
-## 3.2 Estimated Monthly Production
-
-```
-monthlyProduction = dailyLoaves × monthlyWorkingDays
-```
-
-- Unit: loaves per month.
-
-## 3.3 Worked Example
-
-Inputs: `dailyLoaves = 50,000`, `dailyWorkingHours = 10`, `monthlyWorkingDays = 26`
-
-```
-requiredHourlyProduction = ceil(50,000 / 10) = 5,000 loaves/hour
-monthlyProduction        = 50,000 × 26       = 1,300,000 loaves/month
-```
-
-Result: `5,000` falls in the 3,500–6,000 band → **Custom configuration recommended** (see §4.2).
-
-## 3.4 Important Constraints on the Formula
-
-- The formula uses **only** `dailyLoaves`, `dailyWorkingHours`, and `monthlyWorkingDays`.
-- Loaf weight, shape, and size do **not** alter the numeric output. They affect the **configuration narrative** and are forwarded to sales, because real-world capacity depends on them — but the page must never present a single fixed capacity as guaranteed.
-- No price, cost, ROI, or financial value is ever computed.
+- What is the price?
+- What is the final quotation?
+- What is the cost per loaf?
+- What is the ROI?
 
 ---
 
-# 4. Calculator Result States
+# 2. Calculator Step Flow
 
-The thresholds come directly from CLAUDE.md / Session 1. Three states, none of them framed as errors or warnings.
+Use the 4-step flow defined in Session 4.
 
-## 4.1 State 1 — Standard Configuration May Be Suitable
+## Step 1 — Production Need
 
-**Condition:**
-```
-requiredHourlyProduction <= 3500
-```
+Fields:
 
-- `configurationDirection = "standard"`
-- `capacityFit = "within"`
-- **Visual:** Calm positive state — green result card (Session 5 §6.5 Result 1).
-- **Message (from Session 2 copy):**
-  > Your required hourly production is within the lower production range. A standard configuration may be suitable, subject to technical review.
+- Required loaves per day
+- Daily working hours
+- Monthly working days
 
-## 4.2 State 2 — Custom Configuration Recommended
+## Step 2 — Product Specs
 
-**Condition:**
-```
-requiredHourlyProduction > 3500 AND requiredHourlyProduction <= 6000
-```
+Fields:
 
-- `configurationDirection = "custom"`
-- `capacityFit = "upper"`
-- **Visual:** Highlighted recommendation state — blue result card (Session 5 §6.5 Result 2).
-- **Message:**
-  > Your required hourly production is within the flexible production range. A custom configuration is recommended based on loaf size, weight, shape, and automation needs.
+- Target loaf weight
+- Target loaf shape
+- Target loaf size
+- Custom weight field if needed
+- Custom size field if needed
 
-## 4.3 State 3 — Higher-Capacity Study Recommended
+## Step 3 — Automation Needs
 
-**Condition:**
-```
-requiredHourlyProduction > 6000
-```
+Fields:
 
-- `configurationDirection = "higher_capacity"`
-- `capacityFit = "beyond"`
-- **Visual:** Consultative state (not warning/error) — amber result card (Session 5 §6.5 Result 3).
-- **Message:**
-  > Your required hourly production is above the typical single-line range. A higher-capacity configuration or multi-line production study is recommended.
+- Mixing system required?
+- Weighing system required?
+- Counting or packaging support required?
+- Automatic counting required?
 
-## 4.4 Result-State Logic Table
+## Step 4 — Recommendation
 
-| requiredHourlyProduction | direction | capacityFit | Card color |
-|--------------------------|-----------|-------------|------------|
-| `<= 3500` | `standard` | `within` | Green |
-| `3501 – 6000` | `custom` | `upper` | Blue |
-| `> 6000` | `higher_capacity` | `beyond` | Amber |
+Outputs:
 
-> **Boundary note:** The brief expresses the middle band as “> 3500 and <= 6000.” Because results are integers (rounded up), the value `3500` is Standard and `3501` is the first Custom value. `6000` is the last Custom value; `6001` is the first Higher-capacity value.
-
-## 4.5 Always-Present Disclaimer
-
-Displayed with every result, regardless of state (Session 2 copy):
-
-> This calculator provides an indicative production estimate only. Final line configuration, capacity, and quotation will be confirmed after technical review.
-
-## 4.6 Calculator CTA
-
-Inside the result panel (Session 2 copy):
-
-> **Request a Custom Quotation Based on These Details**
-
-This CTA scrolls to the Lead Qualification Form and triggers prefill (§10).
+- Required hourly production
+- Estimated monthly production
+- Capacity fit indicator
+- Configuration direction
+- Suggested add-ons
+- CTA to request a custom quotation
 
 ---
 
-# 5. Add-on Recommendation Logic
+# 3. Calculator Input Fields
 
-`suggestedAddons` is an ordered list assembled from the rules below. It is advisory only — it pre-selects nothing irreversibly and never implies pricing.
+## 3.1 Required Loaves Per Day
 
-## 5.1 Base Recommendations by Configuration Direction
+Key: `dailyLoaves`
 
-| Direction | Always-suggested base add-ons |
-|-----------|-------------------------------|
-| `standard` | `Spiral Mixer` (if mixing not declined) |
-| `custom` | `Electronic Mixing System with Weighing Scale`, `Air Compressor` |
-| `higher_capacity` | `Electronic Mixing System with Weighing Scale`, `Air Compressor`, `Additional Control Systems` |
+Type: number  
+Required: yes  
+Default: empty  
+Placeholder: `Example: 50,000`
 
-> Rationale: higher throughput benefits from electronic dosing accuracy and stronger control/automation. The Air Compressor supports pneumatic systems that are commonly required as automation increases.
+Suggested range:
 
-## 5.2 Rules Driven by Calculator Inputs
+- Minimum: 1,000
+- Maximum soft limit: 1,000,000
 
-| Condition | Add to `suggestedAddons` |
-|-----------|--------------------------|
-| `needsMixing = "Yes"` AND `direction = standard` | `Spiral Mixer` |
-| `needsMixing = "Yes"` AND `direction != standard` | `Electronic Mixing System with Weighing Scale` |
-| `needsMixing = "Not sure"` | `Electronic Mixing System with Weighing Scale` (as an option to discuss) |
-| `needsPackaging = "Yes"` | `Packing and Preparation Table`, `Bag Sealing Machine`, `Automatic Bread Counter` |
-| `needsPackaging = "Not sure"` | `Automatic Bread Counter` (as an option to discuss) |
-| `requiredHourlyProduction > 6000` | `Additional Control Systems` |
+Validation:
 
-## 5.3 Assembly Rules
+- Must be a positive number.
+- Must not be zero.
+- Must not contain letters.
 
-1. Start with the base list for the matched `configurationDirection`.
-2. Apply each input-driven rule in §5.2.
-3. **De-duplicate** while preserving first-seen order.
-4. If `needsMixing = "No"`, **remove** any mixing add-on (`Spiral Mixer`, `Electronic Mixing System with Weighing Scale`) that was added by the base rule.
-5. If `needsPackaging = "No"`, **remove** packaging add-ons (`Packing and Preparation Table`, `Bag Sealing Machine`, `Automatic Bread Counter`).
-6. If the final list is empty, display the neutral note instead of an empty block:
-   > Optional systems can be selected after a technical review of your production plan.
+Friendly error:
 
-## 5.4 Canonical Add-on Names (must match Session 2 copy exactly)
+> Please enter the number of loaves you want to produce per day.
+
+---
+
+## 3.2 Daily Working Hours
+
+Key: `dailyWorkingHours`
+
+Type: number  
+Required: yes  
+Default: empty  
+Placeholder: `Example: 10`
+
+Suggested range:
+
+- Minimum: 1
+- Maximum: 24
+
+Validation:
+
+- Must be between 1 and 24.
+- Must not be zero.
+
+Friendly error:
+
+> Please enter the number of working hours per day.
+
+---
+
+## 3.3 Monthly Working Days
+
+Key: `monthlyWorkingDays`
+
+Type: number  
+Required: yes  
+Default: 26  
+Placeholder: `Example: 26`
+
+Suggested range:
+
+- Minimum: 1
+- Maximum: 31
+
+Validation:
+
+- Must be between 1 and 31.
+
+Friendly error:
+
+> Please enter the number of working days per month.
+
+---
+
+## 3.4 Target Loaf Weight
+
+Key: `targetWeight`
+
+Type: select / pill options  
+Required: yes  
+Default: `not_sure`
+
+Options:
+
+- `30g`
+- `50g`
+- `70g`
+- `100g`
+- `custom`
+- `not_sure`
+
+Custom sub-field:
+
+Key: `customWeightGrams`  
+Type: number  
+Required only if `targetWeight = custom`
+
+Suggested range:
+
+- Minimum: 30
+- Maximum: 100
+
+Friendly error:
+
+> Please enter a custom loaf weight between 30 g and 100 g, or choose Not sure.
+
+Important:
+
+Loaf weight does not change the numeric calculator output. It helps sales review the technical configuration.
+
+---
+
+## 3.5 Target Loaf Shape
+
+Key: `targetShape`
+
+Type: select / pill options  
+Required: yes  
+Default: `not_sure`
+
+Options:
+
+- `round`
+- `square`
+- `not_sure`
+
+Important:
+
+Loaf shape does not change the numeric calculator output. It helps sales understand the required configuration.
+
+---
+
+## 3.6 Target Loaf Size
+
+Key: `targetSize`
+
+Type: select / pill options  
+Required: yes  
+Default: `not_sure`
+
+Options:
+
+- `20cm`
+- `25cm`
+- `30cm`
+- `custom`
+- `not_sure`
+
+Custom sub-field:
+
+Key: `customSizeCm`  
+Type: number  
+Required only if `targetSize = custom`
+
+Suggested range:
+
+- Minimum: 20
+- Maximum: 30
+
+Friendly error:
+
+> Please enter a custom loaf size between 20 cm and 30 cm, or choose Not sure.
+
+Important:
+
+Loaf size does not change the numeric calculator output. It helps sales review technical configuration.
+
+---
+
+## 3.7 Mixing System Required?
+
+Key: `needsMixingSystem`
+
+Type: select / pill options  
+Required: yes  
+Default: `not_sure`
+
+Options:
+
+- `yes`
+- `no`
+- `not_sure`
+
+---
+
+## 3.8 Counting or Packaging Support Required?
+
+Key: `needsPackagingSupport`
+
+Type: select / pill options  
+Required: yes  
+Default: `not_sure`
+
+Options:
+
+- `yes`
+- `no`
+- `not_sure`
+
+---
+
+# 4. Calculator Output Fields
+
+## 4.1 Required Hourly Production
+
+Key: `requiredHourlyProduction`
+
+Formula:
+
+```txt
+ceil(dailyLoaves / dailyWorkingHours)
+```
+
+Display format:
+
+```txt
+Your project requires approximately [X] loaves per hour.
+```
+
+Rules:
+
+- Always round up using `ceil`.
+- Use thousands separators.
+- Use tabular numerals.
+
+---
+
+## 4.2 Estimated Monthly Production
+
+Key: `estimatedMonthlyProduction`
+
+Formula:
+
+```txt
+dailyLoaves × monthlyWorkingDays
+```
+
+Display format:
+
+```txt
+Estimated monthly output: [X] loaves.
+```
+
+Rules:
+
+- Use thousands separators.
+- Use tabular numerals.
+
+---
+
+## 4.3 Capacity Fit Indicator
+
+Key: `capacityFit`
+
+Possible values:
+
+- `standard_possible`
+- `custom_recommended`
+- `higher_capacity_study`
+
+This drives:
+
+- Result state color
+- Recommendation message
+- Gauge position
+- CTA emphasis
+
+---
+
+## 4.4 Configuration Direction
+
+Key: `configurationDirection`
+
+Possible values:
+
+1. Standard Configuration May Be Suitable
+2. Custom Configuration Recommended
+3. Higher-Capacity Study Recommended
+
+---
+
+## 4.5 Suggested Add-ons
+
+Key: `suggestedAddOns`
+
+Returns an array of canonical add-on names.
+
+Canonical names:
 
 - Spiral Mixer
 - Electronic Mixing System with Weighing Scale
@@ -245,521 +401,743 @@ This CTA scrolls to the Lead Qualification Form and triggers prefill (§10).
 - Air Compressor
 - Additional Control Systems
 
-## 5.5 Display
+---
 
-- Render as pill tags (Session 5 §10.6), each with its icon (Session 5 §8.5).
-- Always followed by the note (Session 2):
-  > Optional systems are selected after reviewing production volume, product type, site layout, and packaging workflow.
+## 4.6 Disclaimer
+
+Always show:
+
+> This calculator provides an indicative production estimate only. Final line configuration, capacity, and quotation will be confirmed after technical review.
 
 ---
 
-# 6. Input Validation Rules (Calculator)
+# 5. Formula Logic
 
-Validation is **inline, friendly, and non-blocking until calculation**. Results compute live once required fields are valid.
+## Core formulas
 
-| Field | Rule | Error Message |
-|-------|------|---------------|
-| `dailyLoaves` | Required, integer, `>= 1`, `<= 5,000,000` | `Please enter your required loaves per day.` |
-| `dailyLoaves` | Not zero / not negative | `Daily loaves must be a positive number.` |
-| `dailyLoaves` | Above max | `That number seems very high. Our team will study multi-line options with you.` |
-| `dailyWorkingHours` | Required, number, `>= 1`, `<= 24` | `Enter working hours between 1 and 24.` |
-| `monthlyWorkingDays` | Required, integer, `>= 1`, `<= 31` | `Enter working days between 1 and 31.` |
-| `loafWeight` | One option selected | `Select a target loaf weight.` |
-| `loafWeightCustom` | Required if weight = Custom; 10–500 | `Enter a custom weight between 10 and 500 g.` |
-| `loafShape` | One option selected | `Select a loaf shape.` |
-| `loafSize` | One option selected | `Select a target loaf size.` |
-| `loafSizeCustom` | Required if size = Custom; 5–80 | `Enter a custom size between 5 and 80 cm.` |
-| `needsMixing` | One option selected | `Let us know if you need a mixing system.` |
-| `needsPackaging` | One option selected | `Let us know if you need counting or packaging support.` |
+```txt
+requiredHourlyProduction = ceil(dailyLoaves / dailyWorkingHours)
+estimatedMonthlyProduction = dailyLoaves × monthlyWorkingDays
+```
 
-## 6.1 Validation Behavior
+## Important technical note
 
-- **Numeric inputs:** strip non-numeric characters; accept thousands separators on display but store as raw number.
-- **Live results:** compute and show results only when `dailyLoaves`, `dailyWorkingHours`, and `monthlyWorkingDays` are all valid. The three spec/automation selects refine the configuration message and add-ons but are not required for the numeric output to appear.
-- **Calculator CTA enabled** only once all required fields are valid.
-- Errors appear **on blur** and clear **on valid input** (do not nag while typing the first character).
+Loaf weight, loaf shape, and loaf size do not change the numeric output in the calculator.
+
+They are collected for technical qualification only.
+
+The calculator estimates required output based on production demand and operating time. Final line capacity depends on technical configuration.
 
 ---
 
-# 7. Edge Cases
+# 6. Result States
 
-| # | Scenario | Handling |
-|---|----------|----------|
-| 1 | `dailyWorkingHours = 0` | Blocked by validation (min 1). Never divide by zero. |
-| 2 | Division yields a decimal | `ceil()` to whole loaves/hour. |
-| 3 | Extremely large `dailyLoaves` (e.g. > 5,000,000) | Cap input; show the multi-line guidance message; still route to `higher_capacity`. |
-| 4 | `requiredHourlyProduction` exactly `3500` | Standard state. |
-| 5 | `requiredHourlyProduction` exactly `6000` | Custom state. |
-| 6 | `requiredHourlyProduction` = `6001` | Higher-capacity state. |
-| 7 | `loafShape = "Not sure yet"` | Allowed. Configuration message adds: “Final shape (round or square) will be confirmed during technical review.” |
-| 8 | `loafWeight = Custom` but custom field empty | Block calculation; show custom-weight error. |
-| 9 | All automation answers = `Not sure` | Add-ons list shows discussion-level suggestions (§5.2) plus the neutral note. |
-| 10 | User edits an input after results shown | Recompute live; animate number change (Session 5 §13.7). |
-| 11 | `monthlyWorkingDays` > 31 | Block (max 31). |
-| 12 | Non-numeric pasted into numeric field | Sanitize on input; ignore invalid characters. |
-| 13 | User reaches form without using calculator | Form works standalone; no prefill applied (§10.4). |
-| 14 | Very small need (e.g. 100 loaves/day, 8h → 13/h) | Standard state; message still framed positively, no “too small” language. |
-| 15 | Decimal working hours (e.g. 10.5) | Allowed (1 decimal place). |
-| 16 | Floating-point rounding artifacts | Round monthly to nearest integer; ceil hourly. |
+## Boundary Table
+
+| Required hourly production | Result state | UI color |
+|---:|---|---|
+| 1–3,500 | Standard Configuration May Be Suitable | Green |
+| 3,501–6,000 | Custom Configuration Recommended | Blue |
+| 6,001+ | Higher-Capacity Study Recommended | Amber |
 
 ---
 
-# 8. Lead Form Step-by-Step UX
+## 6.1 Standard Configuration May Be Suitable
 
-Five steps, matching Session 1 §10, Session 2 §11, and Session 4 §9. A live **Summary Panel** is shown on desktop (right column) and as a collapsible card on the final mobile step (Session 5 §6.7).
+Condition:
 
-**Progress indicator:** `Step X of 5 — [Step Name]` (Session 5 §9.5).
+```txt
+requiredHourlyProduction <= 3500
+```
 
-> **Step order note:** Session 2 copy lists Contact Details as Step 1; Session 1/Session 4 list Contact Details last. We follow **Session 2 (the finalized copy): Contact Details first**, because capturing contact early protects the lead even on partial completion. The summary panel still surfaces product/capacity data as later steps are filled.
+Exact message:
+
+> Your required hourly production is within the lower production range. A standard configuration may be suitable, subject to technical review.
+
+UI state:
+
+- Green result card
+- Calm positive state
+- Do not imply final approval
+
+---
+
+## 6.2 Custom Configuration Recommended
+
+Condition:
+
+```txt
+requiredHourlyProduction > 3500 && requiredHourlyProduction <= 6000
+```
+
+Exact message:
+
+> Your required hourly production is within the flexible production range. A custom configuration is recommended based on loaf size, weight, shape, and automation needs.
+
+UI state:
+
+- Blue result card
+- Recommended state
+- Strong CTA to submit requirements
+
+---
+
+## 6.3 Higher-Capacity Study Recommended
+
+Condition:
+
+```txt
+requiredHourlyProduction > 6000
+```
+
+Exact message:
+
+> Your required hourly production is above the typical single-line range. A higher-capacity configuration or multi-line production study is recommended.
+
+UI state:
+
+- Amber result card
+- Consultative state, not error or warning
+
+---
+
+# 7. Add-on Recommendation Logic
+
+## Base recommendations by capacity fit
+
+### Standard possible
+
+Suggest:
+
+- Air Compressor
+- Additional Control Systems
+
+### Custom recommended
+
+Suggest:
+
+- Air Compressor
+- Additional Control Systems
+- Electronic Mixing System with Weighing Scale
+
+### Higher-capacity study
+
+Suggest:
+
+- Air Compressor
+- Additional Control Systems
+- Electronic Mixing System with Weighing Scale
+- Automatic Bread Counter
+
+---
+
+## Input-driven recommendations
+
+If `needsMixingSystem = yes`:
+
+Add:
+
+- Spiral Mixer
+- Electronic Mixing System with Weighing Scale
+
+If `needsMixingSystem = no`:
+
+Remove:
+
+- Spiral Mixer
+
+If `needsPackagingSupport = yes`:
+
+Add:
+
+- Packing and Preparation Table
+- Bag Sealing Machine
+- Automatic Bread Counter
+
+If `needsPackagingSupport = no`:
+
+Remove:
+
+- Packing and Preparation Table
+- Bag Sealing Machine
+- Automatic Bread Counter
+
+If `needsPackagingSupport = not_sure`:
+
+Keep packaging add-ons only if capacity fit is `higher_capacity_study`.
+
+## De-duplication rule
+
+The final add-on list must be unique.
+
+---
+
+# 8. Calculator Validation Rules
+
+## Live result behavior
+
+Do not show full results until these fields are valid:
+
+- Required loaves per day
+- Daily working hours
+- Monthly working days
+
+Before valid input, show a neutral placeholder:
+
+> Enter your production target to estimate the required hourly output.
+
+## Field-level messages
+
+- `dailyLoaves` missing: Please enter the number of loaves you want to produce per day.
+- `dailyWorkingHours` missing: Please enter the number of working hours per day.
+- `dailyWorkingHours` zero: Working hours must be greater than zero.
+- `monthlyWorkingDays` missing: Please enter the number of working days per month.
+- `customWeightGrams` out of range: Please enter a custom loaf weight between 30 g and 100 g.
+- `customSizeCm` out of range: Please enter a custom loaf size between 20 cm and 30 cm.
+
+---
+
+# 9. Edge Cases
+
+## 9.1 Divide by zero
+
+If `dailyWorkingHours = 0`, block calculation and show a validation message.
+
+## 9.2 Exact 3,500
+
+If required hourly production equals 3,500, result is:
+
+- Standard Configuration May Be Suitable
+
+## 9.3 Exact 6,000
+
+If required hourly production equals 6,000, result is:
+
+- Custom Configuration Recommended
+
+## 9.4 6,001+
+
+If required hourly production is 6,001 or more, result is:
+
+- Higher-Capacity Study Recommended
+
+## 9.5 Not sure product specs
+
+If weight, shape, or size are `not_sure`, calculation still works.
+
+Show note:
+
+> Final product specifications can be reviewed during the technical consultation.
+
+## 9.6 Very large inputs
+
+If required hourly production is far above 6,000, avoid scary warnings.
+
+Use consultative message:
+
+> Your project may require a higher-capacity configuration, multiple lines, or a custom production study.
+
+## 9.7 Standalone form path
+
+If a visitor skips calculator and goes directly to form, the form should still work.
+
+Derived values should be computed at submit if enough data is available.
+
+---
+
+# 10. Lead Form UX
+
+The lead form should collect enough data for sales to prepare a short customized quotation.
+
+It should use 5 steps.
 
 ## Step 1 — Contact Details
-| Field | Key | Type | Required |
-|-------|-----|------|----------|
-| Full Name | `fullName` | Text | Yes |
-| Company Name | `companyName` | Text | Yes |
-| Country / City | `location` | Text | Yes |
-| Phone / WhatsApp | `phone` | Tel | Yes |
-| Email Address | `email` | Email | Yes |
+
+Fields:
+
+| Field | Key | Required |
+|---|---|---|
+| Full Name | `fullName` | Yes |
+| Company Name | `companyName` | Yes |
+| Country / City | `location` | Yes |
+| Phone / WhatsApp | `phoneWhatsapp` | Yes |
+| Email Address | `email` | Yes |
+
+Rationale:
+
+Contact is first because the final copy uses contact-first flow and because phone/email are critical for sales follow-up.
+
+---
 
 ## Step 2 — Product Requirements
-| Field | Key | Type | Required |
-|-------|-----|------|----------|
-| What product do you want to produce? | `productType` | Text | Yes |
-| Preferred Loaf Shape | `loafShape` | Select: Round / Square / Not sure yet | Yes |
-| Target Loaf Weight | `loafWeight` | Select: 30g / 50g / 70g / 100g / Custom | Yes |
-| Target Loaf Size | `loafSize` | Select: 20cm / 25cm / 30cm / Custom | Yes |
-| Additional Product Notes | `productNotes` | Textarea | No |
+
+Fields:
+
+| Field | Key | Required |
+|---|---|---|
+| Product Type | `productType` | Yes |
+| Preferred Loaf Shape | `preferredShape` | Yes |
+| Target Loaf Weight | `targetWeight` | Yes |
+| Target Loaf Size | `targetSize` | Yes |
+| Additional Product Notes | `productNotes` | No |
+
+---
 
 ## Step 3 — Production Capacity
-| Field | Key | Type | Required |
-|-------|-----|------|----------|
-| Required Loaves Per Day | `dailyLoaves` | Number | Yes |
-| Daily Working Hours | `dailyWorkingHours` | Number | Yes |
-| Monthly Working Days | `monthlyWorkingDays` | Number | Yes |
-| Do You Expect Future Capacity Expansion? | `futureExpansion` | Select: Yes / No / Not sure | Yes |
+
+Fields:
+
+| Field | Key | Required |
+|---|---|---|
+| Required Loaves Per Day | `dailyLoaves` | Yes |
+| Daily Working Hours | `dailyWorkingHours` | Yes |
+| Monthly Working Days | `monthlyWorkingDays` | Yes |
+| Future Capacity Expansion? | `futureExpansion` | No |
+
+---
 
 ## Step 4 — Automation & Add-ons
-| Field | Key | Type | Required |
-|-------|-----|------|----------|
-| Do You Need a Mixing System? | `needsMixing` | Select: Yes / No / Not sure | Yes |
-| Do You Need a Weighing System? | `needsWeighing` | Select: Yes / No / Not sure | Yes |
-| Do You Need Packing Support? | `needsPacking` | Select: Yes / No / Not sure | Yes |
-| Do You Need Automatic Counting? | `needsCounting` | Select: Yes / No / Not sure | Yes |
+
+Fields:
+
+| Field | Key | Required |
+|---|---|---|
+| Need Mixing System? | `needsMixingSystem` | Yes |
+| Need Weighing System? | `needsWeighingSystem` | No |
+| Need Packing Support? | `needsPackagingSupport` | Yes |
+| Need Automatic Counting? | `needsAutomaticCounting` | No |
+
+---
 
 ## Step 5 — Site Readiness
-| Field | Key | Type | Required |
-|-------|-----|------|----------|
-| Is Your Factory Space Ready? | `spaceReady` | Select: Yes / Not yet / Under preparation | Yes |
-| Available Space | `availableSpace` | Text | No |
-| Is Electricity Ready? | `electricityReady` | Select: Yes / Not yet / Not sure | Yes |
-| Is Gas or Diesel Available? | `fuelReady` | Select: Yes / Not yet / Not sure | Yes |
-| Is Ventilation Ready? | `ventilationReady` | Select: Yes / Not yet / Not sure | Yes |
-| Target Operation Date | `targetOperationDate` | Text | No |
 
-**Final CTA:** `Submit Requirements`
+Fields:
 
-## 8.1 Per-Step UX Behavior
-
-- Each step validates before advancing; **Next** disabled until required fields valid.
-- **Back** never loses entered data (state persists across steps).
-- On the final step, the summary panel becomes a collapsible review card (mobile) so users can confirm before submit.
-- Progress is **autosaved to local storage** (Session 4 §6.11) so an interrupted user can return.
-- Smooth step transitions per Session 5 §13.7.
+| Field | Key | Required |
+|---|---|---|
+| Factory Space Ready? | `factorySpaceReady` | Yes |
+| Available Space | `availableSpace` | No |
+| Electricity Ready? | `electricityReady` | No |
+| Gas or Diesel Available? | `fuelAvailable` | No |
+| Ventilation Ready? | `ventilationReady` | No |
+| Target Operation Date | `targetOperationDate` | No |
 
 ---
 
-# 9. Form Validation Rules
+# 11. Form Validation Rules
 
-| Field | Rule | Error Message |
-|-------|------|---------------|
-| `fullName` | Required, 2–80 chars, letters/spaces/hyphens | `Please enter your full name.` |
-| `companyName` | Required, 2–120 chars | `Please enter your company name.` |
-| `location` | Required, 2–120 chars | `Please enter your country and city.` |
-| `phone` | Required, valid international format (E.164-friendly), 7–20 digits, may start `+` | `Enter a valid phone or WhatsApp number with country code.` |
-| `email` | Required, valid email pattern | `Enter a valid business email address.` |
-| `productType` | Required, 2–200 chars | `Tell us what product you want to produce.` |
-| `loafShape` | Required selection | `Select a loaf shape.` |
-| `loafWeight` | Required selection; if Custom → custom field 10–500 g | `Select a target loaf weight.` |
-| `loafSize` | Required selection; if Custom → custom field 5–80 cm | `Select a target loaf size.` |
-| `productNotes` | Optional, max 1000 chars | — |
-| `dailyLoaves` | Required, integer 1–5,000,000 | `Enter your required loaves per day.` |
-| `dailyWorkingHours` | Required, 1–24 | `Enter working hours between 1 and 24.` |
-| `monthlyWorkingDays` | Required, integer 1–31 | `Enter working days between 1 and 31.` |
-| `futureExpansion` | Required selection | `Let us know about future expansion.` |
-| `needsMixing` / `needsWeighing` / `needsPacking` / `needsCounting` | Required selection each | `Please choose an option.` |
-| `spaceReady` / `electricityReady` / `fuelReady` / `ventilationReady` | Required selection each | `Please choose an option.` |
-| `availableSpace` | Optional, max 60 chars | — |
-| `targetOperationDate` | Optional, free text (e.g. “Q4 2026”), max 40 chars | — |
+## Critical required fields
 
-## 9.1 Validation Behavior
+The form cannot submit without:
 
-- Validate **on blur** per field, and **on Next** for the whole step.
-- Show one consolidated, friendly error summary at the top of a step only if the user attempts Next with multiple errors.
-- Email and phone are the two most critical fields for sales — emphasize their errors clearly.
-- Never block on optional fields.
+- Full name
+- Company name
+- Country / city
+- Phone / WhatsApp
+- Email
+- Product type
+- Preferred shape
+- Daily loaves
+- Daily working hours
+- Monthly working days
 
----
+## Email validation
 
-# 10. Prefill Behavior (Calculator → Form)
+Show error if email does not include a valid email format.
 
-If the user runs the calculator before opening the form (e.g. via the result-panel CTA), carry their inputs forward so they don’t re-enter data.
+Message:
 
-## 10.1 Mapped Fields
+> Please enter a valid business email address.
 
-| Calculator field | Form field | Step |
-|------------------|------------|------|
-| `dailyLoaves` | `dailyLoaves` | 3 |
-| `dailyWorkingHours` | `dailyWorkingHours` | 3 |
-| `monthlyWorkingDays` | `monthlyWorkingDays` | 3 |
-| `loafShape` | `loafShape` | 2 |
-| `loafWeight` (+ custom) | `loafWeight` (+ custom) | 2 |
-| `loafSize` (+ custom) | `loafSize` (+ custom) | 2 |
-| `needsMixing` | `needsMixing` | 4 |
-| `needsPackaging` | `needsPacking` | 4 |
+## Phone validation
 
-## 10.2 Derived Values Carried (read-only context for sales)
+Keep phone validation flexible for international numbers.
 
-- `requiredHourlyProduction`
-- `monthlyProduction`
-- `configurationDirection`
-- `suggestedAddons`
+Required rules:
 
-These are stored on the payload (§11) and shown in the summary panel, but are **not** editable form fields.
+- Must not be empty.
+- Must contain at least 8 digits.
 
-## 10.3 Prefill UX
+Message:
 
-- When the form opens with prefill, show a small dismissible note at the top of the form:
-  > We’ve carried over your calculator details. You can edit anything before submitting.
-- Prefilled fields are normal (editable), not locked.
-- The summary panel immediately reflects prefilled values.
-- If the user changes a prefilled capacity field, recompute `requiredHourlyProduction` / `monthlyProduction` / `configurationDirection` so the payload stays consistent with what was submitted.
+> Please enter a valid phone or WhatsApp number.
 
-## 10.4 No-Calculator Path
+## Numeric validation
 
-- If the user opens the form directly, no prefill is applied; derived fields are computed at submit time from the form’s capacity inputs (Step 3) using the same formulas (§3) and logic (§4–§5).
+Use the same calculator validation rules for:
 
-## 10.5 Source Tracking
-
-- `leadSource.usedCalculator` = `true` if any prefill occurred, else `false`.
+- Daily loaves
+- Daily working hours
+- Monthly working days
+- Custom weight
+- Custom size
 
 ---
 
-# 11. Final Lead Data Payload Structure
+# 12. Prefill Behavior from Calculator to Form
 
-A single normalized object submitted to the backend / CRM / notification service. **No pricing fields exist anywhere in this payload.**
+If the user completes the calculator first, prefill these form fields:
+
+| Calculator field | Form field |
+|---|---|
+| `dailyLoaves` | `dailyLoaves` |
+| `dailyWorkingHours` | `dailyWorkingHours` |
+| `monthlyWorkingDays` | `monthlyWorkingDays` |
+| `targetShape` | `preferredShape` |
+| `targetWeight` | `targetWeight` |
+| `targetSize` | `targetSize` |
+| `needsMixingSystem` | `needsMixingSystem` |
+| `needsPackagingSupport` | `needsPackagingSupport` |
+| `requiredHourlyProduction` | summary panel only |
+| `estimatedMonthlyProduction` | summary panel only |
+| `capacityFit` | hidden derived field |
+| `suggestedAddOns` | hidden derived field and summary panel |
+
+Rules:
+
+- Prefilled fields must remain editable.
+- Show small note:
+
+> We filled these details from your calculator result. You can edit them before submitting.
+
+- Track source:
+
+```txt
+leadSourcePath = calculator_prefill
+```
+
+If user did not use calculator:
+
+```txt
+leadSourcePath = direct_form
+```
+
+---
+
+# 13. Final Lead Payload Structure
+
+Use this normalized structure for future frontend/API implementation.
 
 ```json
 {
-  "meta": {
-    "submittedAt": "2026-06-15T10:06:46Z",
-    "locale": "en",
-    "pageVersion": "nl-rm210-landing-v1",
-    "leadSource": {
-      "usedCalculator": true,
-      "entryCta": "calculator_result",
-      "referrer": "https://example.com",
-      "utm": {
-        "source": null,
-        "medium": null,
-        "campaign": null
-      }
-    }
-  },
+  "source": "landing_page",
+  "leadSourcePath": "calculator_prefill",
   "contact": {
-    "fullName": "string",
-    "companyName": "string",
-    "location": "string",
-    "phone": "+9665XXXXXXXX",
-    "email": "name@company.com"
+    "fullName": "",
+    "companyName": "",
+    "location": "",
+    "phoneWhatsapp": "",
+    "email": ""
   },
   "product": {
-    "productType": "string",
-    "loafShape": "round | square | not_sure",
-    "loafWeight": "30g | 50g | 70g | 100g | custom",
-    "loafWeightCustom": 0,
-    "loafSize": "20cm | 25cm | 30cm | custom",
-    "loafSizeCustom": 0,
-    "productNotes": "string"
+    "productType": "",
+    "preferredShape": "round | square | not_sure",
+    "targetWeight": "30g | 50g | 70g | 100g | custom | not_sure",
+    "customWeightGrams": null,
+    "targetSize": "20cm | 25cm | 30cm | custom | not_sure",
+    "customSizeCm": null,
+    "productNotes": ""
   },
-  "capacity": {
-    "dailyLoaves": 50000,
-    "dailyWorkingHours": 10,
-    "monthlyWorkingDays": 26,
+  "production": {
+    "dailyLoaves": null,
+    "dailyWorkingHours": null,
+    "monthlyWorkingDays": null,
     "futureExpansion": "yes | no | not_sure"
   },
   "automation": {
-    "needsMixing": "yes | no | not_sure",
-    "needsWeighing": "yes | no | not_sure",
-    "needsPacking": "yes | no | not_sure",
-    "needsCounting": "yes | no | not_sure"
+    "needsMixingSystem": "yes | no | not_sure",
+    "needsWeighingSystem": "yes | no | not_sure",
+    "needsPackagingSupport": "yes | no | not_sure",
+    "needsAutomaticCounting": "yes | no | not_sure",
+    "suggestedAddOns": []
   },
   "site": {
-    "spaceReady": "yes | not_yet | under_preparation",
-    "availableSpace": "8 x 22 m",
-    "electricityReady": "yes | not_yet | not_sure",
-    "fuelReady": "yes | not_yet | not_sure",
-    "ventilationReady": "yes | not_yet | not_sure",
-    "targetOperationDate": "Q4 2026"
+    "factorySpaceReady": "yes | not_yet | under_preparation",
+    "availableSpace": "",
+    "electricityReady": "yes | no | not_sure",
+    "fuelAvailable": "yes | no | not_sure",
+    "ventilationReady": "yes | no | not_sure",
+    "targetOperationDate": ""
   },
   "derived": {
-    "requiredHourlyProduction": 5000,
-    "monthlyProduction": 1300000,
-    "configurationDirection": "standard | custom | higher_capacity",
-    "suggestedAddons": [
-      "Electronic Mixing System with Weighing Scale",
-      "Air Compressor"
-    ]
+    "requiredHourlyProduction": null,
+    "estimatedMonthlyProduction": null,
+    "capacityFit": "standard_possible | custom_recommended | higher_capacity_study",
+    "configurationDirection": ""
+  },
+  "meta": {
+    "submittedAt": "ISO_DATE",
+    "language": "en",
+    "noPriceDisplayed": true
   }
 }
 ```
 
-## 11.1 Field Notes
+Important:
 
-- `loafWeightCustom` / `loafSizeCustom` are `0` (or `null`) unless the matching select is `custom`.
-- `derived` is computed at submit time from `capacity` + `product` + `automation`, even when the calculator was not used, so sales always receives a configuration direction.
-- Enum values are stored in normalized snake_case; display labels come from the content files.
+- `noPriceDisplayed` must always be true.
+- Payload must not include any price field.
 
 ---
 
-# 12. WhatsApp Message Template (for Sales)
+# 14. WhatsApp Templates
 
-Used when the lead is delivered to the sales team via WhatsApp (or when the visitor taps the WhatsApp CTA and we prefill a structured message). **No prices.**
+## 14.1 System to Sales Notification
 
-## 12.1 Sales Notification (system → sales WhatsApp)
+```txt
+New Nano Line lead received
 
-```
-🟠 New Nano Line Lead — NL-RM210
+Company: [companyName]
+Contact: [fullName]
+Location: [location]
+Phone/WhatsApp: [phoneWhatsapp]
+Email: [email]
 
-👤 Contact
-Name: {{fullName}}
-Company: {{companyName}}
-Location: {{location}}
-Phone: {{phone}}
-Email: {{email}}
+Product: [productType]
+Shape: [preferredShape]
+Weight: [targetWeight]
+Size: [targetSize]
 
-🍞 Product
-Type: {{productType}}
-Shape: {{loafShape}}
-Weight: {{loafWeight}}
-Size: {{loafSize}}
+Daily production target: [dailyLoaves] loaves/day
+Working hours: [dailyWorkingHours] hours/day
+Required hourly production: [requiredHourlyProduction] loaves/hour
+Monthly output estimate: [estimatedMonthlyProduction] loaves/month
 
-⚙️ Capacity
-Daily loaves: {{dailyLoaves}}
-Working hours/day: {{dailyWorkingHours}}
-Working days/month: {{monthlyWorkingDays}}
-Required hourly: {{requiredHourlyProduction}}/h
-Monthly output: {{monthlyProduction}}
-Future expansion: {{futureExpansion}}
+Configuration direction: [configurationDirection]
+Suggested add-ons: [suggestedAddOns]
 
-🧩 Direction: {{configurationDirection}}
-Suggested add-ons: {{suggestedAddons}}
+Site readiness:
+- Space: [factorySpaceReady]
+- Available space: [availableSpace]
+- Electricity: [electricityReady]
+- Gas/Diesel: [fuelAvailable]
+- Ventilation: [ventilationReady]
 
-🏭 Site
-Space ready: {{spaceReady}} ({{availableSpace}})
-Electricity: {{electricityReady}}
-Fuel: {{fuelReady}}
-Ventilation: {{ventilationReady}}
-Target date: {{targetOperationDate}}
-
-Source: {{usedCalculator ? "Calculator + Form" : "Form only"}}
-Submitted: {{submittedAt}}
-```
-
-## 12.2 Visitor-Initiated WhatsApp (CTA → pre-filled outbound message)
-
-When a visitor taps **Contact Us on WhatsApp**, prefill a short, polite message (no internal labels):
-
-```
-Hello Nano Line, I'm interested in the NL-RM210 healthy bread production line.
-
-I want to produce {{loafShape}} bread, around {{loafWeight}}, target ~{{dailyLoaves}} loaves/day.
-Could you help me configure a line and prepare a customized quotation?
-```
-
-If the calculator/form has no data yet, fall back to:
-
-```
-Hello Nano Line, I'm interested in the NL-RM210 healthy bread production line and would like to discuss a customized quotation.
+No price was displayed on the website. Prepare a customized quotation after technical review.
 ```
 
 ---
 
-# 13. Email Notification Template (for Sales)
+## 14.2 Visitor-Initiated WhatsApp Message
 
-Internal email to the sales inbox on each submission. **No prices.**
+```txt
+Hello Nano Line team,
 
-**Subject:**
-```
-New NL-RM210 Lead — {{companyName}} ({{configurationDirection}}, ~{{requiredHourlyProduction}}/h)
-```
+I would like to request a custom quotation for the NL-RM210 healthy bread production line.
 
-**Body (HTML or plain text):**
-```
-A new lead has been submitted from the Nano Line landing page.
+My project details:
+- Product: [productType]
+- Shape: [preferredShape]
+- Daily production target: [dailyLoaves] loaves/day
+- Working hours: [dailyWorkingHours] hours/day
+- Required hourly production: [requiredHourlyProduction] loaves/hour
 
-CONTACT
-- Name: {{fullName}}
-- Company: {{companyName}}
-- Location: {{location}}
-- Phone / WhatsApp: {{phone}}
-- Email: {{email}}
-
-PRODUCT REQUIREMENTS
-- Product type: {{productType}}
-- Loaf shape: {{loafShape}}
-- Loaf weight: {{loafWeight}}{{loafWeightCustom ? " (" + loafWeightCustom + " g)" : ""}}
-- Loaf size: {{loafSize}}{{loafSizeCustom ? " (" + loafSizeCustom + " cm)" : ""}}
-- Notes: {{productNotes}}
-
-PRODUCTION CAPACITY
-- Required loaves/day: {{dailyLoaves}}
-- Daily working hours: {{dailyWorkingHours}}
-- Monthly working days: {{monthlyWorkingDays}}
-- Required hourly production: {{requiredHourlyProduction}} loaves/hour
-- Estimated monthly production: {{monthlyProduction}} loaves
-- Future expansion: {{futureExpansion}}
-
-CONFIGURATION DIRECTION
-- {{configurationDirection}}
-- Suggested add-ons: {{suggestedAddons}}
-
-AUTOMATION NEEDS
-- Mixing system: {{needsMixing}}
-- Weighing system: {{needsWeighing}}
-- Packing support: {{needsPacking}}
-- Automatic counting: {{needsCounting}}
-
-SITE READINESS
-- Factory space ready: {{spaceReady}}
-- Available space: {{availableSpace}}
-- Electricity ready: {{electricityReady}}
-- Gas/diesel available: {{fuelReady}}
-- Ventilation ready: {{ventilationReady}}
-- Target operation date: {{targetOperationDate}}
-
-LEAD SOURCE
-- Used calculator: {{usedCalculator}}
-- Entry CTA: {{entryCta}}
-- Submitted: {{submittedAt}}
-
-Reminder: prepare a SHORT customized quotation after technical review.
-Do not send pricing before configuration is confirmed.
-```
-
-## 13.1 Optional Lead Auto-Acknowledgement (to the visitor)
-
-If a visitor confirmation email is sent, it must **not** include any price or fixed delivery date:
-
-**Subject:** `We received your Nano Line production request`
-
-```
-Dear {{fullName}},
-
-Thank you for your interest in the Nano Line NL-RM210 healthy bread production line.
-
-Our technical team will review your production requirements and contact you to
-discuss the suitable line configuration and a customized quotation.
-
-This is a built-to-order industrial line. Average manufacturing and preparation
-lead time is approximately 120 to 180 days, depending on the final approved
-configuration.
-
-Best regards,
-Nano Line Industries
+Please contact me to review the suitable configuration.
 ```
 
 ---
 
-# 14. Thank-You / Success Message
+# 15. Email Templates
 
-On successful submission (Session 2 copy, exact):
+## 15.1 Sales Notification Email
 
-> **Thank you. Your request has been received.**
-> Our team will review your production requirements and contact you to discuss the suitable line configuration and quotation.
+Subject:
 
-## 14.1 Success State UX (Session 5 §9.8)
+```txt
+New Nano Line Quotation Request — [companyName]
+```
 
-- Replace the form card with the success card: `#D1FAE5` background, `check-circle` 48px in `#16A34A`, headline in `#065F46`.
-- Show secondary actions below the message:
-  - `Contact Us on WhatsApp` (WhatsApp green button)
-  - `Back to Home` / `Explore Production Stages` (ghost button)
-- Clear autosaved form draft from local storage on success.
-- Announce success to screen readers via `aria-live="polite"`.
+Body:
 
-## 14.2 Failure State
+```txt
+A new quotation request has been submitted from the Nano Line landing page.
 
-If submission fails (network/server):
+Contact Details
+Full name: [fullName]
+Company: [companyName]
+Location: [location]
+Phone/WhatsApp: [phoneWhatsapp]
+Email: [email]
 
-> Something went wrong while sending your request. Please try again, or contact us directly on WhatsApp.
+Product Requirements
+Product type: [productType]
+Preferred shape: [preferredShape]
+Target weight: [targetWeight]
+Target size: [targetSize]
+Notes: [productNotes]
 
-- Keep all entered data intact.
-- Offer a **Retry** button and the WhatsApp fallback.
+Production Capacity
+Daily loaves: [dailyLoaves]
+Working hours/day: [dailyWorkingHours]
+Monthly working days: [monthlyWorkingDays]
+Required hourly production: [requiredHourlyProduction]
+Estimated monthly production: [estimatedMonthlyProduction]
+Configuration direction: [configurationDirection]
 
----
+Automation & Add-ons
+Mixing system: [needsMixingSystem]
+Weighing system: [needsWeighingSystem]
+Packing support: [needsPackagingSupport]
+Automatic counting: [needsAutomaticCounting]
+Suggested add-ons: [suggestedAddOns]
 
-# 15. Implementation Notes (for the future frontend build)
+Site Readiness
+Factory space ready: [factorySpaceReady]
+Available space: [availableSpace]
+Electricity ready: [electricityReady]
+Gas/Diesel available: [fuelAvailable]
+Ventilation ready: [ventilationReady]
+Target operation date: [targetOperationDate]
 
-> No code in this session. These notes guide Session 7 (scaffold) and Session 8 (build).
-
-## 15.1 Suggested Module Boundaries
-
-- `lib/calculator.ts` — pure functions only:
-  - `computeRequiredHourly(dailyLoaves, dailyWorkingHours): number`
-  - `computeMonthly(dailyLoaves, monthlyWorkingDays): number`
-  - `resolveConfiguration(requiredHourly): { direction, capacityFit, message }`
-  - `suggestAddons(inputs, direction): string[]`
-  - All deterministic, side-effect free, unit-testable.
-- `lib/validation.ts` — field validators returning `{ valid, message }`.
-- `content/landing.en.ts` — all labels, options, messages, templates (Session 4 §13 bilingual readiness).
-- Components map to Session 4 §11 (`ProductionCalculator`, `LeadQualificationForm`, `SummaryPanel`, `CalculatorResultCard`, `FormStep`).
-
-## 15.2 State Management
-
-- Calculator and form should share a single source of truth (e.g. a small store or React context) so prefill (§10) and the live summary panel stay in sync.
-- Persist form draft to `localStorage` under a versioned key (e.g. `nl_lead_draft_v1`); clear on success.
-
-## 15.3 Formula Integrity
-
-- Centralize thresholds (`3500`, `6000`) as named constants — never hardcode inline.
-- `requiredHourlyProduction` uses `Math.ceil`; `monthlyProduction` uses integer multiplication.
-- Add unit tests for the boundary cases in §7 (3500 / 6000 / 6001).
-
-## 15.4 No-Price Guardrails
-
-- No field, label, template, or computed value may represent currency, cost, ROI, or fixed delivery dates.
-- A simple lint/test could assert that calculator and payload contain no keys matching `price|cost|amount|total|currency`.
-
-## 15.5 Accessibility & Input Hints
-
-- Numeric inputs: `inputmode="numeric"`; phone: `inputmode="tel"`; email: `type="email"`.
-- Calculator result region: `aria-live="polite"`.
-- Every option group uses fieldset/legend semantics; pill options are real radio inputs visually styled (Session 5 §9.4).
-- Minimum 44px touch targets (Session 5 §14.3).
-
-## 15.6 Analytics Hooks (no PII beyond consent)
-
-Recommended events: `calculator_started`, `calculator_completed`, `calculator_cta_clicked`, `form_step_completed` (with step index), `form_submitted`, `whatsapp_clicked`. These help the sales/marketing team measure qualification funnel performance.
-
-## 15.7 Delivery / Integration
-
-- Submit endpoint should fan out to: CRM record + sales email (§13) + optional sales WhatsApp (§12) + optional visitor acknowledgement (§13.1).
-- Treat WhatsApp/email templates as content (translatable later for the Arabic version).
+Important: No price was displayed on the website. Follow up with a technical review before sending a customized quotation.
+```
 
 ---
 
-# 16. Session 6 Handoff
+## 15.2 Visitor Acknowledgement Email
 
-Session 6 is complete. Defined and ready:
+Subject:
 
-- Calculator inputs, outputs, formulas, result states, and add-on logic
-- Calculator and form validation rules and edge cases
-- Five-step lead form UX with field-level specs
-- Calculator→form prefill behavior
-- Normalized, price-free lead payload
-- WhatsApp and email templates (sales + visitor)
-- Success/failure UX
-- Implementation notes for the engineering phase
+```txt
+Your Nano Line quotation request has been received
+```
 
-## Next Session
+Body:
 
-**Session 7 — Frontend Scaffold** (Next.js + TypeScript + Tailwind, component and content structure per CLAUDE.md §7), followed by **Session 8 — Frontend Build**, implementing the calculator and form exactly per this document and the Session 5 design system.
+```txt
+Thank you for submitting your production requirements.
+
+Our team will review your healthy bread production target, product specifications, automation needs, and site readiness before preparing a customized quotation.
+
+Please note that the NL-RM210 is a built-to-order production line. Average manufacturing and preparation lead time is approximately 120 to 180 days, depending on the final approved configuration.
+
+A member of our team will contact you to discuss the suitable line setup for your project.
+```
+
+---
+
+# 16. Success / Failure UX States
+
+## Success Message
+
+Use exact Session 2 copy:
+
+```txt
+Thank you. Your request has been received. Our team will review your production requirements and contact you to discuss the suitable line configuration and quotation.
+```
+
+## Failure Message
+
+```txt
+Something went wrong while submitting your request. Please try again or contact us on WhatsApp.
+```
+
+## Accessibility
+
+- Announce success/failure messages to screen readers.
+- Move focus to the success state after submit.
+- Keep submitted summary visible after success.
+
+---
+
+# 17. Implementation Notes
+
+## Module boundaries
+
+Future code should separate:
+
+```txt
+lib/calculator.ts
+lib/validation.ts
+lib/leadPayload.ts
+content/landing.en.ts
+components/ProductionCalculator.tsx
+components/LeadQualificationForm.tsx
+```
+
+## Pure calculator functions
+
+The calculator logic should be implemented as pure functions later.
+
+Suggested future functions:
+
+```txt
+calculateRequiredHourlyProduction()
+calculateMonthlyProduction()
+getCapacityFit()
+getConfigurationDirection()
+getSuggestedAddOns()
+buildLeadPayload()
+```
+
+## Central thresholds
+
+Capacity thresholds must be centralized:
+
+```txt
+STANDARD_MAX = 3500
+CUSTOM_MAX = 6000
+```
+
+## No-price guardrails
+
+Future implementation should avoid these keys and words in calculator output:
+
+- price
+- cost
+- quote value
+- USD
+- SAR
+- AED
+- EGP
+- payment
+- discount
+
+## Analytics hooks
+
+Track:
+
+- calculator_started
+- calculator_completed
+- calculator_result_standard
+- calculator_result_custom
+- calculator_result_high_capacity
+- lead_form_started
+- lead_form_completed
+- whatsapp_clicked
+- quotation_cta_clicked
+
+No pricing analytics should be tracked because pricing is not shown.
+
+---
+
+# 18. Session 6 Output Summary
+
+Session 6 delivered:
+
+- Calculator input contract
+- Calculator output contract
+- Formula logic
+- Boundary states
+- Add-on recommendation logic
+- Validation messages
+- Edge cases
+- Lead form UX
+- Form validation
+- Calculator-to-form prefill mapping
+- Sales-ready payload
+- WhatsApp templates
+- Email templates
+- Success/failure UX states
+- Implementation notes
+
+---
+
+# 19. Next Session
+
+Next session:
+
+## Session 7 — Frontend Scaffold
+
+Goal:
+Create the Next.js + TypeScript + Tailwind project structure, content files, component placeholders, calculator logic foundation, and documentation-ready code architecture.

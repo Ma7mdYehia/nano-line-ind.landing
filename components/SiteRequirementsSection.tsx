@@ -1,4 +1,5 @@
 import { CTAButton } from "./ui/CTAButton";
+import { Reveal } from "@/components/ui/Reveal";
 import type { LandingContent } from "@/content/types";
 
 const REQUIREMENTS = [
@@ -54,25 +55,27 @@ export function SiteRequirementsSection({
   return (
     <section id="site" className="bg-off-white">
       <div className="container-content py-16 md:py-20">
-        <div className="max-w-[600px]">
-          <p className="overline mb-3">{content.sections.site.overline}</p>
-          <h2 className="text-h2 font-bold text-navy">
-            {content.sections.site.headline}
-          </h2>
-          <p className="mt-4 text-body-lg text-text-body">
-            Before manufacturing begins, our technical team conducts a site
-            readiness review. Understanding your facility helps us configure the
-            line correctly and avoid delays during installation.
-          </p>
-        </div>
+        <Reveal>
+          <div className="max-w-[600px]">
+            <p className="overline mb-3">{content.sections.site.overline}</p>
+            <h2 className="text-h2 font-bold text-navy">
+              {content.sections.site.headline}
+            </h2>
+            <p className="mt-4 text-body-lg text-text-body">
+              Before manufacturing begins, our technical team conducts a site
+              readiness review. Understanding your facility helps us configure the
+              line correctly and avoid delays during installation.
+            </p>
+          </div>
+        </Reveal>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_360px] lg:items-start">
           {/* Requirement cards */}
           <div className="grid gap-4 sm:grid-cols-2">
-            {REQUIREMENTS.map(({ label, value, detail, icon }) => (
+            {REQUIREMENTS.map(({ label, value, detail, icon }, i) => (
+              <Reveal key={label} delay={i * 60} className="h-full">
               <div
-                key={label}
-                className="flex gap-4 rounded-xl border border-steel-light bg-white p-5 shadow-shallow"
+                className="flex h-full gap-4 rounded-xl border border-steel-light bg-white p-5 shadow-shallow"
               >
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-navy/5 text-navy">
                   <svg
@@ -98,10 +101,12 @@ export function SiteRequirementsSection({
                   <p className="mt-1 text-body-sm text-text-body">{detail}</p>
                 </div>
               </div>
+              </Reveal>
             ))}
           </div>
 
           {/* Floor plan diagram */}
+          <Reveal delay={120}>
           <div className="rounded-2xl border border-steel-light bg-white p-6 shadow-shallow">
             <p className="mb-4 text-caption font-semibold uppercase tracking-overline text-text-muted">
               Typical Floor Layout — 8 × 22 m
@@ -191,6 +196,7 @@ export function SiteRequirementsSection({
               Actual dimensions may vary depending on the final line configuration and optional systems.
             </p>
           </div>
+          </Reveal>
         </div>
 
         <div className="mt-10">

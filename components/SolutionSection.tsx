@@ -1,4 +1,5 @@
 import { CTAButton } from "./ui/CTAButton";
+import { Reveal } from "@/components/ui/Reveal";
 import type { LandingContent } from "@/content/types";
 
 const BENEFITS = [
@@ -38,28 +39,30 @@ export function SolutionSection({ content }: { content: LandingContent }) {
   return (
     <section className="bg-off-white">
       <div className="container-content py-16 md:py-20">
-        <div className="max-w-[640px]">
-          <p className="overline mb-3">{content.sections.solution.overline}</p>
-          <h2 className="text-h2 font-bold text-navy">
-            {content.sections.solution.headline}
-          </h2>
-          <p className="mt-4 text-body-lg text-text-body">
-            The NL-RM210 / Steel Master is an integrated industrial line for
-            healthy bread production. It supports the full production journey —
-            from dough dividing and proofing to forming, baking, and cooling.
-          </p>
-          <p className="mt-3 text-body text-text-body">
-            Instead of forcing your product into a fixed setup, the line can
-            be configured around your required loaf shape, size, weight,
-            capacity, automation needs, and available factory space.
-          </p>
-        </div>
+        <Reveal>
+          <div className="max-w-[640px]">
+            <p className="overline mb-3">{content.sections.solution.overline}</p>
+            <h2 className="text-h2 font-bold text-navy">
+              {content.sections.solution.headline}
+            </h2>
+            <p className="mt-4 text-body-lg text-text-body">
+              The NL-RM210 / Steel Master is an integrated industrial line for
+              healthy bread production. It supports the full production journey —
+              from dough dividing and proofing to forming, baking, and cooling.
+            </p>
+            <p className="mt-3 text-body text-text-body">
+              Instead of forcing your product into a fixed setup, the line can
+              be configured around your required loaf shape, size, weight,
+              capacity, automation needs, and available factory space.
+            </p>
+          </div>
+        </Reveal>
 
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {BENEFITS.map(({ icon, title, body }) => (
+          {BENEFITS.map(({ icon, title, body }, i) => (
+            <Reveal key={title} delay={i * 70} className="h-full">
             <div
-              key={title}
-              className="group rounded-xl border border-steel-light bg-white p-6 shadow-shallow transition-shadow hover:shadow-sm"
+              className="group h-full rounded-xl border border-steel-light bg-white p-6 shadow-shallow transition-shadow hover:shadow-sm"
             >
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-amber-light text-amber">
                 <svg
@@ -75,9 +78,10 @@ export function SolutionSection({ content }: { content: LandingContent }) {
                   <path d={icon} />
                 </svg>
               </div>
-              <h3 className="text-h4 text-navy">{title}</h3>
+              <h3 className="text-body font-semibold text-navy">{title}</h3>
               <p className="mt-2 text-body-sm text-text-body">{body}</p>
             </div>
+            </Reveal>
           ))}
         </div>
 

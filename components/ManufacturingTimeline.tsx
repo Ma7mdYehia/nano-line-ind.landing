@@ -1,4 +1,5 @@
 import { CTAButton } from "./ui/CTAButton";
+import { Reveal } from "@/components/ui/Reveal";
 import { LEAD_TIME } from "@/lib/constants";
 import type { LandingContent } from "@/content/types";
 
@@ -48,21 +49,24 @@ export function ManufacturingTimeline({
   return (
     <section className="bg-off-white">
       <div className="container-content py-16 md:py-20">
-        <div className="max-w-[600px]">
-          <p className="overline mb-3">
-            {content.sections.manufacturing.overline}
-          </p>
-          <h2 className="text-h2 font-bold text-navy">
-            {content.sections.manufacturing.headline}
-          </h2>
-          <p className="mt-4 text-body-lg text-text-body">
-            The NL-RM210 is not a ready-stock machine sold with one fixed
-            configuration. Each line is manufactured and prepared based on the
-            client&apos;s approved technical requirements.
-          </p>
-        </div>
+        <Reveal>
+          <div className="max-w-[600px]">
+            <p className="overline mb-3">
+              {content.sections.manufacturing.overline}
+            </p>
+            <h2 className="text-h2 font-bold text-navy">
+              {content.sections.manufacturing.headline}
+            </h2>
+            <p className="mt-4 text-body-lg text-text-body">
+              The NL-RM210 is not a ready-stock machine sold with one fixed
+              configuration. Each line is manufactured and prepared based on the
+              client&apos;s approved technical requirements.
+            </p>
+          </div>
+        </Reveal>
 
         {/* Lead time callout */}
+        <Reveal delay={80}>
         <div className="mt-8 flex items-start gap-4 rounded-xl border-l-4 border-amber bg-white p-6 shadow-shallow">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-light">
             <svg
@@ -93,6 +97,7 @@ export function ManufacturingTimeline({
             </p>
           </div>
         </div>
+        </Reveal>
 
         {/* Timeline — desktop horizontal */}
         <div className="mt-12 hidden md:block">
@@ -101,8 +106,9 @@ export function ManufacturingTimeline({
             <div className="absolute left-0 right-0 top-8 h-0.5 bg-steel-light" />
 
             <div className="relative grid grid-cols-5 gap-4">
-              {STEPS.map((step) => (
-                <div key={step.number} className="flex flex-col items-center">
+              {STEPS.map((step, i) => (
+                <Reveal key={step.number} delay={i * 90} className="h-full">
+                <div className="flex h-full flex-col items-center">
                   <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-full border-4 border-white bg-navy shadow-sm">
                     <svg
                       className="text-white/80"
@@ -128,6 +134,7 @@ export function ManufacturingTimeline({
                     {step.description}
                   </p>
                 </div>
+                </Reveal>
               ))}
             </div>
           </div>

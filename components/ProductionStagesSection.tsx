@@ -106,38 +106,47 @@ export function ProductionStagesSection({
         <div className="hidden md:grid md:grid-cols-[260px_1fr] md:gap-8">
           {/* Left nav */}
           <nav className="sticky top-20 self-start">
-            <ul className="space-y-0.5 overflow-hidden rounded-xl border border-white/10">
-              {STAGES.map((stage, i) => (
-                <li key={stage.name}>
-                  <button
-                    onClick={() => setActive(i)}
-                    className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
-                      active === i
-                        ? "border-l-4 border-amber bg-white/10 text-white"
-                        : "border-l-4 border-transparent text-white/50 hover:bg-white/5 hover:text-white/80"
-                    }`}
-                  >
-                    <span
-                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-micro font-bold transition-colors ${
+            <div className="relative pl-4">
+              {/* Animated production-flow progress line */}
+              <div className="absolute left-0 top-0 h-full w-1 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="w-full rounded-full bg-amber transition-[height] duration-500 ease-out"
+                  style={{ height: `${((active + 1) / STAGES.length) * 100}%` }}
+                />
+              </div>
+              <ul className="space-y-0.5 overflow-hidden rounded-xl border border-white/10">
+                {STAGES.map((stage, i) => (
+                  <li key={stage.name}>
+                    <button
+                      onClick={() => setActive(i)}
+                      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
                         active === i
-                          ? "bg-amber text-white"
-                          : "bg-white/10 text-white/50"
+                          ? "border-l-4 border-amber bg-white/10 text-white"
+                          : "border-l-4 border-transparent text-white/50 hover:bg-white/5 hover:text-white/80"
                       }`}
                     >
-                      {i + 1}
-                    </span>
-                    <span className="text-body-sm font-medium">
-                      {stage.name}
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+                      <span
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-micro font-bold transition-colors ${
+                          active === i
+                            ? "nl-ring bg-amber text-white"
+                            : "bg-white/10 text-white/50"
+                        }`}
+                      >
+                        {i + 1}
+                      </span>
+                      <span className="text-body-sm font-medium">
+                        {stage.name}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </nav>
 
           {/* Right content */}
           <div className="min-h-[500px]">
-            <div key={active} className="overflow-hidden rounded-2xl bg-slate">
+            <div key={active} className="nl-fade-in overflow-hidden rounded-2xl bg-slate">
               {/* Stage visual */}
               <div
                 className={`flex h-56 items-center justify-center bg-gradient-to-br ${STAGES[active].gradient}`}

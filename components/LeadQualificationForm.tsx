@@ -330,6 +330,7 @@ export function LeadQualificationForm({ content }: { content: LandingContent }) 
 
             {/* Step content */}
             <div className="p-8">
+              <div key={step} className="nl-fade-in">
               {/* Step 1: Contact Details */}
               {step === 1 && (
                 <div className="space-y-5">
@@ -585,6 +586,7 @@ export function LeadQualificationForm({ content }: { content: LandingContent }) 
                   </Field>
                 </div>
               )}
+              </div>
 
               {/* Navigation */}
               <div className="mt-8 flex items-center justify-between border-t border-steel-light pt-6">
